@@ -1,0 +1,283 @@
+﻿﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+
+        <title>利用已有的RBD images快速重建Glance镜像</title>
+		
+        <meta charset="utf-8" />
+        <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
+
+
+        <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/gumby.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/style.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/pygment.css" />
+
+        <script src="http://www.sanjeo.com/theme/js/libs/modernizr-2.6.2.min.js"></script>
+
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+
+<!-- Fork me on github -->
+
+    <div class="container">
+
+        <div class="row">
+
+          <header id="banner" class="body">
+                  <h1><a href="http://www.sanjeo.com">Sanjeo's Blog <strong></strong></a></h1>
+          </header><!-- /#banner -->
+
+            <div id="navigation" class="navbar row">
+              <a href="#" gumby-trigger="#navigation &gt; ul" class="toggle"><i class="icon-menu"></i></a>
+             
+              <ul class="columns">
+                <li><a href="/">Home</a></li>
+					<!--<li class="active"><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
+					<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
+				<li><a href="/functions/archives.html">Archives</a></li>
+				<li><a href="/functions/random.html">Random Article</a></li>
+				<!--
+					<li><a href="/functions/categories.html">Categories</a></li>
+					<li><a href="/functions/tags.html">Tags</a></li>
+					<li><a href="/functions/archives.html">Archives</a></li>
+				
+				-->
+              </ul>
+            </div>
+
+<section id="content" class="body">
+
+   <div class="row">
+        <div class="eleven columns">
+
+
+            <header>
+              <h2 class="entry-title">
+                <a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/" rel="bookmark"
+                   title="Permalink to 利用已有的RBD images快速重建Glance镜像">利用已有的RBD images快速重建Glance镜像</a></h2>
+           
+            </header>
+            <footer class="post-info">
+              <!--
+			  <abbr class="published" title="2014-08-21T17:50:00">
+                Thu 21 August 2014
+              </abbr>
+              <address class="vcard author">
+                By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+              </address>
+			  -->
+			  <address class="vcard author" style="font-style:italic;margin-bottom:-10px;">
+				Thu 21 August 2014
+					&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+	
+			  </address>
+			  <hr />			  
+            </footer><!-- /.post-info -->
+            <div class="entry-content">
+              <h3><strong>前言</strong></h3>
+<p>最近在调整和升级公司的OpenStack时遇到一些硬软件的问题，简单记录学习和解决的过程，以备后用。
+我们的OpenStack环境包括两个相对独立的setup，采用共同的Ceph集群(rbd)作为Glance以及Cinder的存储后端。</p>
+<h3><strong>问题</strong></h3>
+<p><strong>场景</strong>：在一个没有HA的OpenStack部署环境中，如果Glance节点(包括它的数据库)硬盘挂掉了，如何在重新部署完
+的glance中快速恢复镜像呢？</p>
+<p>最初我们的glance使用的是本地file system而不是rbd作为backend，所以在转移或者重建image时只能老老实实的重新上传到glance。现在既然使用了ceph，还那么干岂不是太土包子了？</p>
+<h3><strong>方法</strong></h3>
+<p>我们只需将glance的backend设置成已有的rbd pool,那么接下来要做的只是在glance中建立镜像的相关信息(注册镜像ID以及metadata等)，而不需要创建一个新的镜像，所以自然省时省力。</p>
+<p>1.首先，通过rbd的client查看一下对应image的信息：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="o">~</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">rbd</span> <span class="o">-</span><span class="n">p</span> <span class="n">bimage</span> <span class="n">info</span> <span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06</span><span class="o">-</span><span class="mi">4099</span><span class="o">-</span><span class="mi">85</span><span class="n">a1</span><span class="o">-</span><span class="n">c2a852269166</span>
+<span class="n">rbd</span> <span class="n">image</span> <span class="err">&#39;</span><span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06</span><span class="o">-</span><span class="mi">4099</span><span class="o">-</span><span class="mi">85</span><span class="n">a1</span><span class="o">-</span><span class="n">c2a852269166</span><span class="err">&#39;</span><span class="o">:</span>
+<span class="n">size</span> <span class="mi">5120</span> <span class="n">kB</span> <span class="n">in</span> <span class="mi">1</span> <span class="n">objects</span>
+<span class="n">order</span> <span class="mi">23</span> <span class="p">(</span><span class="mi">8192</span> <span class="n">kB</span> <span class="n">objects</span><span class="p">)</span>
+<span class="nl">block_name_prefix:</span> <span class="n">rbd_data</span><span class="p">.</span><span class="n">c22371f56a20</span>
+<span class="nl">format:</span> <span class="mi">2</span>
+<span class="nl">features:</span> <span class="n">layering</span>
+</pre></div>
+
+
+<p>2.通过glance的<code>image-create</code>命令中的<code>location</code>参数指定image源的rbd地址来创建新的image：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="o">~</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">glance</span> <span class="n">image</span><span class="o">-</span><span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">cirros</span><span class="o">-</span><span class="n">rbd</span> <span class="o">--</span><span class="n">store</span> <span class="n">rbd</span> <span class="o">--</span><span class="n">disk</span><span class="o">-</span><span class="n">format</span> <span class="n">raw</span> <span class="o">--</span><span class="n">container</span><span class="o">-</span><span class="n">format</span> <span class="n">ovf</span> <span class="o">--</span><span class="n">location</span> <span class="n">rbd</span><span class="o">:</span><span class="c1">//730d0191-3e06-4099-85a1-c2a852269166</span>
+ <span class="o">+------------------+--------------------------------------+</span>
+ <span class="o">|</span> <span class="n">Property</span>         <span class="o">|</span> <span class="n">Value</span>                                <span class="o">|</span>
+ <span class="o">+------------------+--------------------------------------+</span>
+ <span class="o">|</span> <span class="n">checksum</span>         <span class="o">|</span> <span class="n">None</span>                                 <span class="o">|</span>
+ <span class="o">|</span> <span class="n">container_format</span> <span class="o">|</span> <span class="n">ovf</span>                                  <span class="o">|</span>
+ <span class="o">|</span> <span class="n">created_at</span>       <span class="o">|</span> <span class="mi">2014</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">25</span><span class="n">T10</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mi">25</span>                  <span class="o">|</span>
+ <span class="o">|</span> <span class="n">deleted</span>          <span class="o">|</span> <span class="n">False</span>                                <span class="o">|</span>
+ <span class="o">|</span> <span class="n">deleted_at</span>       <span class="o">|</span> <span class="n">None</span>                                 <span class="o">|</span>
+ <span class="o">|</span> <span class="n">disk_format</span>      <span class="o">|</span> <span class="n">raw</span>                                  <span class="o">|</span>
+ <span class="o">|</span> <span class="n">id</span>               <span class="o">|</span> <span class="mi">138</span><span class="n">b56d8</span><span class="o">-</span><span class="mi">7</span><span class="n">cef</span><span class="o">-</span><span class="mf">40e9</span><span class="o">-</span><span class="mi">9</span><span class="n">d1d</span><span class="o">-</span><span class="n">a1c22ae8ad87</span> <span class="o">|</span>
+ <span class="o">|</span> <span class="n">is_public</span>        <span class="o">|</span> <span class="n">False</span>                                <span class="o">|</span>
+ <span class="o">|</span> <span class="n">min_disk</span>         <span class="o">|</span> <span class="mi">0</span>                                    <span class="o">|</span>
+ <span class="o">|</span> <span class="n">min_ram</span>          <span class="o">|</span> <span class="mi">0</span>                                    <span class="o">|</span>
+ <span class="o">|</span> <span class="n">name</span>             <span class="o">|</span> <span class="n">cirros</span><span class="o">-</span><span class="n">rbd</span>                           <span class="o">|</span>
+ <span class="o">|</span> <span class="n">owner</span>            <span class="o">|</span> <span class="mi">68353</span><span class="n">b3df0894f2288c25d6706fe1935</span>     <span class="o">|</span>
+ <span class="o">|</span> <span class="n">protected</span>        <span class="o">|</span> <span class="n">False</span>                                <span class="o">|</span>
+ <span class="o">|</span> <span class="n">size</span>             <span class="o">|</span> <span class="mi">5242880</span>                              <span class="o">|</span>
+ <span class="o">|</span> <span class="n">status</span>           <span class="o">|</span> <span class="n">active</span>                               <span class="o">|</span>
+ <span class="o">|</span> <span class="n">updated_at</span>       <span class="o">|</span> <span class="mi">2014</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">25</span><span class="n">T10</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mi">25</span>                  <span class="o">|</span>
+ <span class="o">|</span> <span class="n">virtual_size</span>     <span class="o">|</span> <span class="n">None</span>                                 <span class="o">|</span>
+ <span class="o">+------------------+--------------------------------------+</span>
+</pre></div>
+
+
+<p>PS. 以上<code>--location</code>的url有两种方式来指定：</p>
+<p><strong>(1)</strong> <code>rbd://{$pool-name}/{$image-name}</code></p>
+<p><strong>(2)</strong> <code>rbd://{$image-name}</code> </p>
+<p>方法<strong>(2)</strong>中glance会默认使用<code>glance-api.conf</code>中指定的<code>rbd-pool</code>来进行查找。</p>
+            </div><!-- /.entry-content -->
+			
+			
+			<ul style="float:right;">
+				<li>
+					►&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/">
+						在Apache HTTPD中运行OpenStack keystone
+					</a>
+				</li>
+			</ul>
+			
+			
+            <div class="comments">
+              <h3>Comments</h3>
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_identifier = "pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/";
+                (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://sanjeo.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+              </script>
+            </div>
+
+
+        </div><!-- /.eleven.columns -->
+        
+<div class="three columns">
+
+<div class="sidebarbg">
+	<h4>Pages</h4>
+	<ul>
+		  <li><a href="/functions/categories.html">Categories</a></li>
+		  <li><a href="/functions/tags.html">Tags</a></li>
+		  <li><a href="/functions/archives.html">Archives</a></li>
+	</ul>
+</div>
+
+<div class="sidebarbg">
+<h4>Categories</h4>
+	<ul>
+			<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
+	</ul>
+</div>
+
+<div class="sidebarbg">
+	<h4>Tags</h4>
+		<ul>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+		</ul>
+</div>
+
+
+<div class="social sidebarbg">
+	<nav class="widget">
+	  <h4>Social</h4>
+	  <ul>
+		<li><a target="_blank" href="https://github.com/sanjeo">GitHub</a></li>
+		<li><a target="_blank" href="http://weibo.com/u/2079737417">Weibo</a></li>
+	  </ul>
+	</nav>
+</div>
+
+<nav class="widget sidebarbg">
+  <h4>Links</h4>
+  <ul>
+	<li><a target="_blank" href="http://getpelican.com/">Pelican</a></li>
+	<li><a target="_blank" href="http://python.org/">Python.org</a></li>
+	<li><a target="_blank" href="http://jinja.pocoo.org/">Jinja2</a></li>
+  </ul>
+</nav>
+
+</div> </div><!-- /.row -->
+
+
+</section>
+
+       </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+       <div class="container.nopad bg">
+
+    
+        <footer id="credits" class="row">
+          <div class="seven columns left-center">
+
+                   <address id="about" class="vcard body">
+                    Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                    which takes great advantage of <a href="http://python.org">Python</a>.
+                    <br />
+                    Based on the <a target="_blank" href="http://gumbyframework.com">Gumby Framework</a>
+                    </address>
+          </div>
+
+
+          <div class="seven columns">
+            <div class="row">
+              <ul class="socbtns">
+
+
+
+
+
+              </ul>
+            </div>
+          </div>
+        </footer>
+
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'sanjeo';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+  <script src="http://www.sanjeo.com/theme/js/libs/jquery-1.9.1.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/libs/gumby.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/plugins.js"></script>
+	<script>
+	(function() {
+		var $backToTopTxt = "返回顶部", $backToTopEle = $('<div class="backToTop"></div>').appendTo($("body"))
+			.text($backToTopTxt).attr("title", $backToTopTxt).click(function() {
+				$("html, body").animate({ scrollTop: 0 }, 120);
+		}), $backToTopFun = function() {
+			var st = $(document).scrollTop(), winh = $(window).height();
+			(st > 0)? $backToTopEle.show(): $backToTopEle.hide();
+			//IE6下的定位
+			if (!window.XMLHttpRequest) {
+				$backToTopEle.css("top", st + winh - 166);
+			}
+		};
+		$(window).bind("scroll", $backToTopFun);
+		$(function() { $backToTopFun(); });
+	})();
+	</script>
+</body>
+</html>

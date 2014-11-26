@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 
-        <title>Sanjeo's Blog</title>
+        <title>Sanjeo's Blog - ceph</title>
 		
         <meta charset="utf-8" />
         <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
@@ -90,45 +90,6 @@
 											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
 											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
 											<a class="danger label" href="http://www.sanjeo.com/tag/nova.html">nova</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">在Apache HTTPD中运行OpenStack keystone</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-09-24T22:20:00"> Wed 24 September 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Wed 24 September 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>之前看过一篇关于Openstack keystone的性能测试的<a href="http://prajnagarden.com/openstack/2014/05/06/keystone-tunning-01/">文章</a>，其中提到将Keystone运行在Apache容器下，性能可以提升将近四倍。于是，今天学习了下如何将已有的keystone配置到Apache HTTPD下运行，主要包括以下几个步骤：</p>
-<ol>
-<li>
-<p>关闭正在运行的keystone服务</p>
-<div class="highlight"><pre><span class="n">service</span> <span class="n">openstack</span><span class="o">-</span><span class="n">keystone</span> <span class="n">stop</span>
-<span class="n">chkconfig</span> <span class="n">openstack</span><span class="o">-</span><span class="n">keystone</span> <span class="n">off</span>
-</pre></div>
-
-
-</li>
-<li>
-<p>建立到keystone的wsgi进程的<code>cgi-bin</code>链接</p>
-<div class="highlight"><pre><span class="n">mkdir</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone</span>
-<span class="n">ln</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">keystone</span><span class="p">.</span><span class="n">wsgi</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">main</span>
-<span class="n">ln</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">keystone</span><span class="p">.</span><span class="n">wsgi</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone ...</span></pre></div></li></ol> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/keystone.html">keystone</a>
 								</div>
 
 

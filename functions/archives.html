@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+
+        <title>Sanjeo's Blog</title>
+		
+        <meta charset="utf-8" />
+        <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
+
+
+        <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/gumby.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/style.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/pygment.css" />
+
+        <script src="http://www.sanjeo.com/theme/js/libs/modernizr-2.6.2.min.js"></script>
+
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+
+<!-- Fork me on github -->
+
+    <div class="container">
+
+        <div class="row">
+
+          <header id="banner" class="body">
+                  <h1><a href="http://www.sanjeo.com">Sanjeo's Blog <strong></strong></a></h1>
+          </header><!-- /#banner -->
+
+            <div id="navigation" class="navbar row">
+              <a href="#" gumby-trigger="#navigation &gt; ul" class="toggle"><i class="icon-menu"></i></a>
+             
+              <ul class="columns">
+                <li><a href="/">Home</a></li>
+					<!--<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
+					<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
+				<li><a href="/functions/archives.html">Archives</a></li>
+				<li><a href="/functions/random.html">Random Article</a></li>
+				<!--
+					<li><a href="/functions/categories.html">Categories</a></li>
+					<li><a href="/functions/tags.html">Tags</a></li>
+					<li><a href="/functions/archives.html">Archives</a></li>
+				
+				-->
+              </ul>
+            </div>
+
+<h1>Archives for Sanjeo's Blog</h1>
+
+<dl>
+    <dt>Mon 03 November 2014</dt>
+    <dd><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/">欲删rbd，必先umap</a></dd>
+    <dt>Wed 24 September 2014</dt>
+    <dd><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/">在Apache HTTPD中运行OpenStack keystone</a></dd>
+    <dt>Thu 21 August 2014</dt>
+    <dd><a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/">利用已有的RBD images快速重建Glance镜像</a></dd>
+</dl>
+
+       </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+       <div class="container.nopad bg">
+
+    
+        <footer id="credits" class="row">
+          <div class="seven columns left-center">
+
+                   <address id="about" class="vcard body">
+                    Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                    which takes great advantage of <a href="http://python.org">Python</a>.
+                    <br />
+                    Based on the <a target="_blank" href="http://gumbyframework.com">Gumby Framework</a>
+                    </address>
+          </div>
+
+
+          <div class="seven columns">
+            <div class="row">
+              <ul class="socbtns">
+
+
+
+
+
+              </ul>
+            </div>
+          </div>
+        </footer>
+
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'sanjeo';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+  <script src="http://www.sanjeo.com/theme/js/libs/jquery-1.9.1.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/libs/gumby.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/plugins.js"></script>
+	<script>
+	(function() {
+		var $backToTopTxt = "返回顶部", $backToTopEle = $('<div class="backToTop"></div>').appendTo($("body"))
+			.text($backToTopTxt).attr("title", $backToTopTxt).click(function() {
+				$("html, body").animate({ scrollTop: 0 }, 120);
+		}), $backToTopFun = function() {
+			var st = $(document).scrollTop(), winh = $(window).height();
+			(st > 0)? $backToTopEle.show(): $backToTopEle.hide();
+			//IE6下的定位
+			if (!window.XMLHttpRequest) {
+				$backToTopEle.css("top", st + winh - 166);
+			}
+		};
+		$(window).bind("scroll", $backToTopFun);
+		$(function() { $backToTopFun(); });
+	})();
+	</script>
+</body>
+</html>

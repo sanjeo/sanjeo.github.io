@@ -5,9 +5,16 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.sanjeo.com/index.html</loc>
-<lastmod>2014-11-26T16:21:25-00:00</lastmod>
+<lastmod>2014-12-03T19:47:25-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/</loc>
+<lastmod>2014-12-03T19:30:00-00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
 </url>
 
 <url>
@@ -33,7 +40,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.sanjeo.com/category/openstack.html</loc>
-<lastmod>2014-11-03T22:50:00-00:00</lastmod>
+<lastmod>2014-12-03T19:30:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -47,7 +54,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.sanjeo.com/tag/cinder.html</loc>
-<lastmod>2014-11-03T22:50:00-00:00</lastmod>
+<lastmod>2014-12-03T19:30:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -75,7 +82,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.sanjeo.com/author/sanjeo.html</loc>
-<lastmod>2014-11-03T22:50:00-00:00</lastmod>
+<lastmod>2014-12-03T19:30:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

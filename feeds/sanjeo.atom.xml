@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Sanjeo's Blog</title><link href="http://www.sanjeo.com/" rel="alternate"></link><link href="http://www.sanjeo.com/feeds%5Csanjeo.atom.xml" rel="self"></link><id>http://www.sanjeo.com/</id><updated>2014-12-03T19:30:00+08:00</updated><entry><title>如何清理OpenStack Cinder中的僵尸卷</title><link href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="alternate"></link><updated>2014-12-03T19:30:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-03:pages/2014/12/03/clean-cinder-zombie-volume/</id><summary type="html">&lt;p&gt;在Cinder中删除volume的时候，经常会碰到&lt;code&gt;cinder delete&lt;/code&gt;操作执行后volume的状态为&lt;code&gt;error_deleting&lt;/code&gt;。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为&lt;code&gt;available&lt;/code&gt;或者&lt;code&gt;error&lt;/code&gt;才可以删除。此时，该volume便成了僵尸卷。
-在确保Cinder的backend没有问题的前提下，我的解决方法是：
-1.在cinder的数据库中重置&lt;code&gt;error_deleting&lt;/code&gt;状态的volume为&lt;code&gt;available&lt;/code&gt;:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Sanjeo's Blog</title><link href="http://www.sanjeo.com/" rel="alternate"></link><link href="http://www.sanjeo.com/feeds%5Csanjeo.atom.xml" rel="self"></link><id>http://www.sanjeo.com/</id><updated>2014-12-03T19:50:00+08:00</updated><entry><title>如何清理OpenStack Cinder中的僵尸卷</title><link href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="alternate"></link><updated>2014-12-03T19:50:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-03:pages/2014/12/03/clean-cinder-zombie-volume/</id><summary type="html">&lt;p&gt;在Cinder中删除volume的时候，经常会碰到&lt;code&gt;cinder delete&lt;/code&gt;操作执行后volume的状态为&lt;code&gt;error_deleting&lt;/code&gt;。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为&lt;code&gt;available&lt;/code&gt;或者&lt;code&gt;error&lt;/code&gt;才可以删除。此时，该volume便成了僵尸卷。&lt;/p&gt;
+&lt;p&gt;在确保Cinder的backend没有问题的前提下，我的解决方法是：&lt;/p&gt;
+&lt;p&gt;1.在cinder的数据库中重置&lt;code&gt;error_deleting&lt;/code&gt;状态的volume为&lt;code&gt;available&lt;/code&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
 cinder list | grep error_deleting &amp;gt; volumes.list
 
@@ -21,15 +21,16 @@ mysql cinder -e &lt;span class="s2"&gt;&amp;quot;update volumes set status=&amp;
 
 
 &lt;p&gt;2.重新执行&lt;code&gt;cinder delete&lt;/code&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;cinder&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;available&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;  &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;volume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+cinder list| grep &lt;span class="s1"&gt;&amp;#39;available&amp;#39;&lt;/span&gt;  &amp;gt; volume.list
 
-&lt;span class="n"&gt;cat&lt;/span&gt; &lt;span class="n"&gt;volume&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;|&amp;quot;&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="n"&gt;read&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;
+cat volume.list| awk -F &lt;span class="s2"&gt;&amp;quot;|&amp;quot;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; | &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;line
 &lt;span class="k"&gt;do&lt;/span&gt;
-  &lt;span class="n"&gt;cinder&lt;/span&gt; &lt;span class="n"&gt;delete&lt;/span&gt;  &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;
-  &lt;span class="n"&gt;sleep&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="k"&gt;  &lt;/span&gt;cinder delete  &lt;span class="nv"&gt;$line&lt;/span&gt;
+  sleep 1
 
-&lt;span class="n"&gt;echo&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;
-&lt;span class="n"&gt;done&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$line&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;</summary><category term="cinder"></category></entry><entry><title>欲删rbd，必先umap</title><link href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="alternate"></link><updated>2014-11-03T22:50:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-11-03:pages/2014/11/03/umap-before-remove-rbd-img/</id><summary type="html">&lt;h3&gt;&lt;strong&gt;问题&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;今天在使用&lt;code&gt;ceph&lt;/code&gt;作为&lt;code&gt;nova&lt;/code&gt;和&lt;code&gt;cinder&lt;/code&gt;的backend的情况下，用&lt;code&gt;Rally&lt;/code&gt;测试cinder的&lt;code&gt;create-and-attach-volume&lt;/code&gt;时发现，测试结束后仍有两个instance(deleting状态)和volume(detaching状态)没有删除掉：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;bctrl&lt;/span&gt; &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;keystone_admin&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;cinder&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;all&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;tenants&lt;/span&gt;

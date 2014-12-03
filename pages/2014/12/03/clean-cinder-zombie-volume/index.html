@@ -83,9 +83,9 @@
 			  <hr />			  
             </footer><!-- /.post-info -->
             <div class="entry-content">
-              <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。
-在确保Cinder的backend没有问题的前提下，我的解决方法是：
-1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
+              <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。</p>
+<p>在确保Cinder的backend没有问题的前提下，我的解决方法是：</p>
+<p>1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
 <div class="highlight"><pre><span class="c">#!/bin/bash</span>
 cinder list | grep error_deleting &gt; volumes.list
 
@@ -105,15 +105,16 @@ mysql cinder -e <span class="s2">&quot;update volumes set status=&#39;available&
 
 
 <p>2.重新执行<code>cinder delete</code>:</p>
-<div class="highlight"><pre><span class="n">cinder</span> <span class="n">list</span><span class="o">|</span> <span class="n">grep</span> <span class="err">&#39;</span><span class="n">available</span><span class="err">&#39;</span>  <span class="o">&gt;</span> <span class="n">volume</span><span class="p">.</span><span class="n">list</span>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+cinder list| grep <span class="s1">&#39;available&#39;</span>  &gt; volume.list
 
-<span class="n">cat</span> <span class="n">volume</span><span class="p">.</span><span class="n">list</span><span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">F</span> <span class="s">&quot;|&quot;</span> <span class="err">&#39;</span><span class="p">{</span><span class="n">print</span> <span class="err">$</span><span class="mi">2</span><span class="p">}</span><span class="err">&#39;</span> <span class="o">|</span> <span class="k">while</span> <span class="n">read</span> <span class="n">line</span>
+cat volume.list| awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> | <span class="k">while </span><span class="nb">read </span>line
 <span class="k">do</span>
-  <span class="n">cinder</span> <span class="n">delete</span>  <span class="err">$</span><span class="n">line</span>
-  <span class="n">sleep</span> <span class="mi">1</span>
+<span class="k">  </span>cinder delete  <span class="nv">$line</span>
+  sleep 1
 
-<span class="n">echo</span> <span class="err">$</span><span class="n">line</span>
-<span class="n">done</span>
+<span class="nb">echo</span> <span class="nv">$line</span>
+<span class="k">done</span>
 </pre></div>
             </div><!-- /.entry-content -->
 			
@@ -165,10 +166,10 @@ mysql cinder -e <span class="s2">&quot;update volumes set status=&#39;available&
 	<h4>Tags</h4>
 		<ul>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 		</ul>
 </div>
 

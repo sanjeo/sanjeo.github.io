@@ -73,9 +73,9 @@
 								  </address>
 									
 				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。
-在确保Cinder的backend没有问题的前提下，我的解决方法是：
-1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
+				                <div class="entry-content"> <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。</p>
+<p>在确保Cinder的backend没有问题的前提下，我的解决方法是：</p>
+<p>1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
 <div class="highlight"><pre><span class="c">#!/bin/bash</span>
 cinder list | grep error_deleting &gt; volumes.list
 
@@ -161,10 +161,10 @@ sleep 1
 	<h4>Tags</h4>
 		<ul>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 		</ul>
 </div>
 

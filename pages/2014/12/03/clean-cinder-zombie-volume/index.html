@@ -118,9 +118,9 @@ cat volume.list| awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&
 </pre></div>
 
 
-<p>如果后端出现问题导致volume无法删除，对应的解决方案可以为：
-1.类似上面的<code>update_volume.sh</code>，将cinder数据库<code>volumes</code>中僵尸卷的状态更新为<code>deleted</code>;
-2.更新cinder数据库<code>quota_usages</code>表中的<code>in_use</code>项的数减少相应的删除的僵尸卷的数目。</p>
+<p>如果后端出现问题导致volume无法删除，对应的解决方案可以为：</p>
+<p>1.类似上面的<code>update_volume.sh</code>，将cinder数据库<code>volumes</code>中僵尸卷的状态更新为<code>deleted</code>;</p>
+<p>2.更新cinder数据库<code>quota_usages</code>表中的<code>in_use</code>项的数减少相应的删除的僵尸卷的数目。</p>
             </div><!-- /.entry-content -->
 			
 			
@@ -170,11 +170,11 @@ cat volume.list| awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 		</ul>
 </div>
 

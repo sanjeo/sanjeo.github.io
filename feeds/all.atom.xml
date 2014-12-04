@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Sanjeo's Blog</title><link href="http://www.sanjeo.com/" rel="alternate"></link><link href="http://www.sanjeo.com/feeds/all.atom.xml" rel="self"></link><id>http://www.sanjeo.com/</id><updated>2014-12-03T19:52:00+08:00</updated><entry><title>Shell</title><link href="http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/" rel="alternate"></link><updated>2014-12-03T12:52:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-04:pages/2014/12/04/shell-concurrency-control/</id><summary type="html">&lt;h3&gt;&lt;strong&gt;shell脚本的并发&lt;/strong&gt;&lt;/h3&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Sanjeo's Blog</title><link href="http://www.sanjeo.com/" rel="alternate"></link><link href="http://www.sanjeo.com/feeds/all.atom.xml" rel="self"></link><id>http://www.sanjeo.com/</id><updated>2014-12-03T19:52:00+08:00</updated><entry><title>shell脚本的并发控制</title><link href="http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/" rel="alternate"></link><updated>2014-12-03T12:50:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-04:pages/2014/12/04/shell-concurrency-control/</id><summary type="html">&lt;h3&gt;&lt;strong&gt;shell脚本的并发&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;Default模式下，shell命令是阻塞执行的，可以通过其后添加&lt;code&gt;&amp;amp;&lt;/code&gt;让这条命令异步执行，如：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sleep&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -53,7 +53,10 @@
 &lt;span class="k"&gt;  &lt;/span&gt;sleep 10 &amp;amp;
 &lt;span class="o"&gt;}&lt;/span&gt;
 &lt;span class="k"&gt;done&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</summary><category term="shell"></category></entry><entry><title>如何清理OpenStack Cinder中的僵尸卷</title><link href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="alternate"></link><updated>2014-12-03T19:52:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-03:pages/2014/12/03/clean-cinder-zombie-volume/</id><summary type="html">&lt;p&gt;在Cinder中删除volume的时候，经常会碰到&lt;code&gt;cinder delete&lt;/code&gt;操作执行后volume的状态为&lt;code&gt;error_deleting&lt;/code&gt;。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为&lt;code&gt;available&lt;/code&gt;或者&lt;code&gt;error&lt;/code&gt;才可以删除。此时，该volume便成了僵尸卷。&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上方法通过控制后台任务数来控制并发进程数目在20个以内。&lt;/p&gt;</summary><category term="shell"></category></entry><entry><title>如何清理OpenStack Cinder中的僵尸卷</title><link href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="alternate"></link><updated>2014-12-03T19:52:00+08:00</updated><author><name>Sanjeo</name></author><id>tag:www.sanjeo.com,2014-12-03:pages/2014/12/03/clean-cinder-zombie-volume/</id><summary type="html">&lt;p&gt;在Cinder中删除volume的时候，经常会碰到&lt;code&gt;cinder delete&lt;/code&gt;操作执行后volume的状态为&lt;code&gt;error_deleting&lt;/code&gt;。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为&lt;code&gt;available&lt;/code&gt;或者&lt;code&gt;error&lt;/code&gt;才可以删除。此时，该volume便成了僵尸卷。&lt;/p&gt;
 &lt;p&gt;在确保Cinder的backend没有问题的前提下，我的解决方法是：&lt;/p&gt;
 &lt;p&gt;1.在cinder的数据库中重置&lt;code&gt;error_deleting&lt;/code&gt;状态的volume为&lt;code&gt;available&lt;/code&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;

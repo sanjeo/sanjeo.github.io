@@ -5,14 +5,14 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://www.sanjeo.com/index.html</loc>
-<lastmod>2014-12-04T13:40:10-00:00</lastmod>
+<lastmod>2014-12-04T13:53:30-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/</loc>
-<lastmod>2014-12-03T12:52:00-00:00</lastmod>
+<lastmod>2014-12-03T12:50:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.7</priority>
 </url>

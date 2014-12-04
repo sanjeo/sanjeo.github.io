@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
 
-        <title>Sanjeo's Blog - nova</title>
+        <title>Shell</title>
 		
         <meta charset="utf-8" />
         <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
@@ -41,7 +41,7 @@
              
               <ul class="columns">
                 <li><a href="/">Home</a></li>
-					<!--<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
+					<!--<li class="active"><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
 					<!--<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
@@ -56,48 +56,115 @@
               </ul>
             </div>
 
-<section id="content">
+<section id="content" class="body">
 
    <div class="row">
-
         <div class="eleven columns">
 
-		
-		         <ol id="post-list">
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">欲删rbd，必先umap</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-11-03T20:50:00"> Mon 03 November 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Mon 03 November 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h3><strong>问题</strong></h3>
-<p>今天在使用<code>ceph</code>作为<code>nova</code>和<code>cinder</code>的backend的情况下，用<code>Rally</code>测试cinder的<code>create-and-attach-volume</code>时发现，测试结束后仍有两个instance(deleting状态)和volume(detaching状态)没有删除掉：</p>
-<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="n">tools</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">cinder</span> <span class="n">list</span> <span class="o">--</span><span class="n">all</span><span class="o">-</span><span class="n">tenants</span>
- <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
-<span class="o">|</span>                  <span class="n">ID</span>                  <span class="o">|</span>   <span class="n">Status</span>  <span class="o">|</span>       <span class="n">Display</span> <span class="n">Name</span>      <span class="o">|</span> <span class="n">Size</span> <span class="o">|</span> <span class="n">Volume</span> <span class="n">Type</span> <span class="o">|</span> <span class="n">Bootable</span> <span class="o">|</span>             <span class="n">Attached</span> <span class="n">to</span>              <span class="o">|</span>
- <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
-<span class="o">|</span> <span class="mi">7</span><span class="n">bbc350f</span><span class="o">-</span><span class="mf">404e-4986</span><span class="o">-</span><span class="mi">915</span><span class="n">b</span><span class="o">-</span><span class="n">db7b1cfda403</span> <span class="o">|</span> <span class="n">detaching</span> <span class="o">|</span> <span class="n">rally_volume_hbpqrdslsu</span> <span class="o">|</span>  <span class="mi">10</span>  <span class="o">|</span>     <span class="n">None</span>    <span class="o">|</span>  <span class="nb">false</span>   <span class="o">|</span> <span class="mi">8</span><span class="n">de63a0c</span><span class="o">-</span><span class="mi">580 ...</span></pre></div> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
-											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
-											<a class="danger label" href="http://www.sanjeo.com/tag/nova.html">nova</a>
-								</div>
+            <header>
+              <h2 class="entry-title">
+                <a href="http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/" rel="bookmark"
+                   title="Permalink to Shell">Shell</a></h2>
+           
+            </header>
+            <footer class="post-info">
+              <!--
+			  <abbr class="published" title="2014-12-04T12:30:00">
+                Thu 04 December 2014
+              </abbr>
+              <address class="vcard author">
+                By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+              </address>
+			  -->
+			  <address class="vcard author" style="font-style:italic;margin-bottom:-10px;">
+				Thu 04 December 2014
+					&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+	
+			  </address>
+			  <hr />			  
+            </footer><!-- /.post-info -->
+            <div class="entry-content">
+              <h3><strong>shell脚本的并发</strong></h3>
+<p>Default模式下，shell命令是阻塞执行的，可以通过其后添加<code>&amp;</code>让这条命令异步执行，如：</p>
+<div class="highlight"><pre><span class="n">sleep</span> <span class="mi">10</span> <span class="o">&amp;</span>
+</pre></div>
 
 
+<p>执行这条命令后，并不会阻塞10秒，而是立即返回。</p>
+<p>如果将这种方法用在while循环中，则可以实现多进程并行处理。例如一下<code>test1.sh</code>文件为：</p>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+<span class="o">{</span>
+  <span class="nb">command </span>1
+<span class="o">}</span> &amp;
+<span class="k">done</span>
 
-				        </article></li>
-				</ol><!-- /#posts-list -->
+<span class="nb">command </span>2
+</pre></div>
+
+
+<p>这样的话<code>command 1</code>就可以并行执行了,其实质是将每条<code>command 1</code>命令作为后台进程在执行，这样主进程就不用等待前面的命令执行完毕之后才开始执行接下来的命令。通过执行<code>ls -l | test1.sh</code>可以看到并发的进程数量。</p>
+<p>但是这样带来一个问题: 如果在<code>while</code>循环外面的<code>command 2</code>需要用到循环内部执行得到的结果，那么像<code>test1.sh</code>的这种写法就不work了。我们可以对其做简单修改，达到上述目的，如<code>test2.sh</code>：</p>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+<span class="o">{</span>
+  <span class="nb">command </span>1
+<span class="o">}</span> &amp;
+<span class="k">done</span>
+<span class="nb">wait</span>
+
+<span class="nb">command </span>2
+</pre></div>
+
+
+<p>上面的代码是将所有的<code>command 1</code>在后台并行执行，等到循环里面的命令都结束之后才执行接下来的<code>command 2</code>。</p>
+<h3><strong>shell脚本的并发控制</strong></h3>
+<p>有时为了避免并发进程数过多，导致机器卡死，需要限制并发的数量。以下代码实现了该功能：</p>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+<span class="o">{</span>
+  <span class="nv">joblist</span><span class="o">=(</span><span class="k">$(</span><span class="nb">jobs</span> -p<span class="k">)</span><span class="o">)</span>
+  <span class="k">while</span> <span class="o">((</span> <span class="k">${#</span><span class="nv">joblist</span><span class="p">[*]</span><span class="k">}</span> &gt;<span class="o">=</span> 20 <span class="o">))</span>
+  <span class="k">do</span>
+  <span class="o">{</span>
+      sleep 1
+      <span class="nv">joblist</span><span class="o">=(</span><span class="k">$(</span><span class="nb">jobs</span> -p<span class="k">)</span><span class="o">)</span>
+  <span class="o">}</span>
+  <span class="k">done</span>
+<span class="k">  </span>sleep 10 &amp;
+<span class="o">}</span>
+<span class="k">done</span>
+</pre></div>
+            </div><!-- /.entry-content -->
+			
+			
+			<ul style="float:right;">
+				<li>
+					◄&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/">
+						如何清理OpenStack Cinder中的僵尸卷
+					</a>
+				</li>
+			</ul>
+			
+			
+            <div class="comments">
+              <h3>Comments</h3>
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_identifier = "pages/2014/12/04/shell-concurrency-control/";
+                (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://sanjeo.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+              </script>
+            </div>
+
 
         </div><!-- /.eleven.columns -->
         
@@ -154,10 +221,8 @@
 
 </div> </div><!-- /.row -->
 
-<p class="paginator">
-    Page 1 / 1
-</p>
-</section><!-- /#content -->
+
+</section>
 
        </div><!-- /.row -->
     </div><!-- /.container -->

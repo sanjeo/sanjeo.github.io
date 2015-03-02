@@ -1,5 +1,260 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Sanjeo's Blog</title><link>http://www.sanjeo.com/</link><description></description><atom:link href="http://www.sanjeo.com/feeds%5Csanjeo.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 03 Dec 2014 19:52:00 +0800</lastBuildDate><item><title>shell脚本的并发控制</title><link>http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/</link><description>&lt;h3&gt;&lt;strong&gt;shell脚本的并发&lt;/strong&gt;&lt;/h3&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Sanjeo's Blog</title><link>http://www.sanjeo.com/</link><description></description><atom:link href="http://www.sanjeo.com/feeds%5Csanjeo.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 02 Mar 2015 22:50:00 +0800</lastBuildDate><item><title>OpenStack解析 - Paste Deploy</title><link>http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/</link><description>&lt;p&gt;OpenStack中采用Paste Deployment来部署WSGI应用，这里进行一下简要分析。&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;1. Python WSGI简介&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Python中的WSGI (Web Server Gateway Interface), 是Python应用程序（或者框架、套件）与服务器之间的一种接口，其定义了两者进行通信的接口规范。服务器端和应用端都必须遵循这套规范。当一个应用程序是按照WSGI规范开发的，那么它可以在任意遵循该规范的服务器上运行。那这是怎样一套接口呢？在wsgi规范里，一个web服务流程如下图所示：
+&lt;img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" /&gt;
+显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。
+应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
+中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。
+服务器端也不复杂，对于每个http请求，调用一次应用端“注册”的那个协议规定应用端必须要实现的对象，然后返回相应的响应消息。所有的处理细节都在应用或者中间件中完成。这样一次应用端与服务器的通信就完成了，即完成了一次对用户请求的处理。&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;2. Paste Deploy配置文件&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Paste Depoly是一个用于发现和配置WSGI application和server的系统。对于WSGI application, 用户通过提供一个单独的函数（loadapp），用于从配置文件或者python egg中加载WSGI application。因为WSGI application提供了唯一的单独的简单的访问入口，所以application无需暴露application的内部的实现细节。&lt;/p&gt;
+&lt;p&gt;从一个paste deploy的配置文件(config.ini)来进行简单的分析:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[composite:main]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#urlmap&lt;/span&gt;
+&lt;span class="na"&gt;/&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;home&lt;/span&gt;
+&lt;span class="na"&gt;/blog&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;blog&lt;/span&gt;
+&lt;span class="na"&gt;/wiki&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;wiki&lt;/span&gt;
+&lt;span class="na"&gt;/cms&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;config:cms.ini&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:home]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#static&lt;/span&gt;
+&lt;span class="na"&gt;document_root&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;%(here)s/htdocs&lt;/span&gt;
+
+&lt;span class="k"&gt;[filter-app:blog]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Authentication#auth&lt;/span&gt;
+&lt;span class="na"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;blogapp&lt;/span&gt;
+&lt;span class="na"&gt;roles&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;admin&lt;/span&gt;
+&lt;span class="na"&gt;htpasswd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/home/me/users.htpasswd&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:blogapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:BlogApp&lt;/span&gt;
+&lt;span class="na"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;sqlite:/home/me/blog.db&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:wiki]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;call:mywiki.main:application&lt;/span&gt;
+&lt;span class="na"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;sqlite:/home/me/wiki.db&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;每个配置文件中有不同的section，Paste Deploy只关心诸如带有[app:main]和[filter:error] (':'之后的是section的名称，之前是类型)前缀的section，其他的则会被忽略。以下将一个个分析这些不同类型的section：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[composite:main]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#urlmap&lt;/span&gt;
+&lt;span class="na"&gt;/&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;home&lt;/span&gt;
+&lt;span class="na"&gt;/blog&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;blog&lt;/span&gt;
+&lt;span class="na"&gt;/cms&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;config:cms.ini&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;首先是名为main的composite section。 这部分意味着把请求分发给其他应用来处理。use = egg:Paste#urlmap 表示一种简单的映射关系，利用Paste包下的urlmap应用，把路径不同的请求进行映射，如后面的/ , /blog 以及 /cms等路径.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[app:home]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#static&lt;/span&gt;
+&lt;span class="na"&gt;document_root&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;%(here)s/htdocs&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接下来是名为home的app section。这里用到了一种新的映射方式static，进行静态映射，通过配置document_root的参数，指向静态文件目录。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[filter-app:blog]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Authentication#auth&lt;/span&gt;
+&lt;span class="na"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;blogapp&lt;/span&gt;
+&lt;span class="na"&gt;roles&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;admin&lt;/span&gt;
+&lt;span class="na"&gt;htpasswd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/home/me/users.htpasswd&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:blogapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:BlogApp&lt;/span&gt;
+&lt;span class="na"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;sqlite:/home/me/blog.db&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;filter-app代表了对blog应用进行过滤，这里没有具体说明，但是use表明使用了Authenication包下的auth应用，next指向下一个应用，roles和htpasswd都是配置选项，为一个key-value键值对。下面的blogapp指向了egg封装的BlogApp应用，并配置了数据库目录。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[app:wiki]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;call:mywiki.main:application&lt;/span&gt;
+&lt;span class="na"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;sqlite:/home/me/wiki.db&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后，和上面配置的唯一区别就是use选项配置不再是egg封装的应用，直接通过call命令调用mywiki,main模块下application应用。&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;3. Paste Deploy基本用法&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Paste Deploy加载WSGI应用的方式十分简单，主要是使用paste.deploy.loadapp函数，其基本用法如下：
+from paste.deploy import loadapp 
+wsgi_app = loadapp('config:/path/to/config.ini')&lt;/p&gt;
+&lt;p&gt;url有config以及egg两种模式。其中config模式的文件格式如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[section_name]&lt;/span&gt;
+&lt;span class="na"&gt;key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;value&lt;/span&gt;
+&lt;span class="na"&gt;another key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;a long value&lt;/span&gt;
+&lt;span class="s"&gt;    that extends over multiple lines&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;其中注释行，开头为&lt;code&gt;#&lt;/code&gt;或者&lt;code&gt;；&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;egg模式，通过setuptools打包python源文件，类似java jar的格式；下面详细介绍config文件模式：&lt;/p&gt;
+&lt;h2&gt;&lt;strong&gt;Applications&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;在单个文件中可以定义多个应用，但是如果只有一个应用，则必须把它放在一个section中。
+可以通过以下代码来部署应用：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[app:myapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;config:another_config_file.ini#app_name&lt;/span&gt;
+
+&lt;span class="c1"&gt;# or any URI:&lt;/span&gt;
+&lt;span class="k"&gt;[app:myotherapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:MyApp&lt;/span&gt;
+
+&lt;span class="c1"&gt;# or a callable from a module:&lt;/span&gt;
+&lt;span class="k"&gt;[app:mythirdapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;call:my.project:myapplication&lt;/span&gt;
+
+&lt;span class="c1"&gt;# or even another section:&lt;/span&gt;
+&lt;span class="k"&gt;[app:mylastapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;myotherapp&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;第一种指向同目录下另一个config.ini中定义的app应用
+第二种指向egg封装的应用
+第三种指向一个模块下的应用
+第四中指向本config.ini文件中的另一个app&lt;/p&gt;
+&lt;p&gt;还有一种特别的app的应用部署方式：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[app:myapp]&lt;/span&gt;
+&lt;span class="na"&gt;paste.app_factory&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;myapp.modulename:app_factory&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;paste.app_factory是一种协议格式，除了app_factory外还有composite_facory, fliter_factory, fliter_app_factory, server_factory, server_runner等。后面跟上myapp.modulename模块下的app_factroy类，不同协议其app_factory也不一样，后面会详细介绍如何定义每一个factories.&lt;/p&gt;
+&lt;h2&gt;&lt;strong&gt;Composite Applications&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;复合应用，是那些行为像应用，但是由其他应用组成。如通过类似上文url的方式提供映射，到不同的应用。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[composite:main]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#urlmap&lt;/span&gt;
+&lt;span class="na"&gt;/&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;mainapp&lt;/span&gt;
+&lt;span class="na"&gt;/files&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;staticapp&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:mainapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:MyApp&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:staticapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#static&lt;/span&gt;
+&lt;span class="na"&gt;document_root&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/path/to/docroot&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;&lt;strong&gt;Filter Composition&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;有三种方法进行filter，第一种是fliter-with,第二种是filter-app,第三种是pipeline,多说一句，openstack用的最多的是pipeline。&lt;/p&gt;
+&lt;p&gt;第一种，通过fliter-with指向下一个fliter应用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[app:main]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:MyEgg&lt;/span&gt;
+&lt;span class="na"&gt;filter-with&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;printdebug&lt;/span&gt;
+
+&lt;span class="k"&gt;[filter:printdebug]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#printdebug&lt;/span&gt;
+&lt;span class="c1"&gt;# and you could have another filter-with here, and so on...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;第二种，通过next配置指向下一个filter应用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[filter-app:blog]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Authentication#auth&lt;/span&gt;
+&lt;span class="na"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;blogapp&lt;/span&gt;
+&lt;span class="na"&gt;roles&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;admin&lt;/span&gt;
+&lt;span class="na"&gt;htpasswd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/home/me/users.htpasswd&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:blogapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:BlogApp&lt;/span&gt;
+&lt;span class="na"&gt;database&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;sqlite:/home/me/blog.db&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;第三种，pipeline依次列出filter即可&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[pipeline:main]&lt;/span&gt;
+&lt;span class="na"&gt;pipeline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;filter1 egg:FilterEgg#filter2 filter3 app&lt;/span&gt;
+
+&lt;span class="k"&gt;[filter:filter1]&lt;/span&gt;
+&lt;span class="err"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;&lt;strong&gt;Defining Factories&lt;/strong&gt;&lt;/h2&gt;
+&lt;h1&gt;&lt;strong&gt;app_factory&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;app_factory为可调用对象，接受参数（global,**local_conf）,返回application对象。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;app_factory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;global_config&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;local_conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;wsgi_app&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;global_config传入的是字典参数，local_conf传入的是key-value参数。&lt;/p&gt;
+&lt;h1&gt;&lt;strong&gt;composite_factory&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;composite_factory为可调用对象，接受参数（loader,global_config,**local_conf）, loader有几个方法, get_app用于获取wsgi_app, get_filter用于加载filter, 返回application对象。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;composite_factory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;loader&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;global_config&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;local_conf&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;wsgi_app&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;如下使用方案：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="s-Atom"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;pipeline_factory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s-Atom"&gt;loader&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s-Atom"&gt;global_config&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s-Atom"&gt;pipeline&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="s-Atom"&gt;:&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;#&lt;/span&gt; &lt;span class="s-Atom"&gt;space&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="s-Atom"&gt;separated&lt;/span&gt; &lt;span class="s-Atom"&gt;list&lt;/span&gt; &lt;span class="s-Atom"&gt;of&lt;/span&gt; &lt;span class="s-Atom"&gt;filter&lt;/span&gt; &lt;span class="s-Atom"&gt;and&lt;/span&gt; &lt;span class="s-Atom"&gt;app&lt;/span&gt; &lt;span class="nn"&gt;names&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;pipeline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s-Atom"&gt;pipeline&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;filters&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s-Atom"&gt;loader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get_filter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s-Atom"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="s-Atom"&gt;for&lt;/span&gt; &lt;span class="s-Atom"&gt;n&lt;/span&gt; &lt;span class="s-Atom"&gt;in&lt;/span&gt; &lt;span class="s-Atom"&gt;pipeline&lt;/span&gt;&lt;span class="p"&gt;[:-&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s-Atom"&gt;loader&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;get_app&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s-Atom"&gt;pipeline&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;filters&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;reverse&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="s-Atom"&gt;#&lt;/span&gt; &lt;span class="s-Atom"&gt;apply&lt;/span&gt; &lt;span class="s-Atom"&gt;in&lt;/span&gt; &lt;span class="s-Atom"&gt;reverse&lt;/span&gt; &lt;span class="s-Atom"&gt;order&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;for&lt;/span&gt; &lt;span class="s-Atom"&gt;filter&lt;/span&gt; &lt;span class="s-Atom"&gt;in&lt;/span&gt; &lt;span class="nn"&gt;filters&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="s-Atom"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;filter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s-Atom"&gt;app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="s-Atom"&gt;return&lt;/span&gt; &lt;span class="s-Atom"&gt;app&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;配置文件如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[composite:main]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;pipeline_factory_uri&amp;gt;&lt;/span&gt;
+&lt;span class="na"&gt;pipeline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#printdebug session myapp&lt;/span&gt;
+
+&lt;span class="k"&gt;[filter:session]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:Paste#session&lt;/span&gt;
+&lt;span class="na"&gt;store&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;memory&lt;/span&gt;
+
+&lt;span class="k"&gt;[app:myapp]&lt;/span&gt;
+&lt;span class="na"&gt;use&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;egg:MyApp&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;将数据读取传入，将filter printdebug,session读入并付给filter,读取app为pipeline参数的最后一个myapp,翻转filter先运行session(myapp)，再运行egg:Paste#printdebug(myapp)。&lt;/p&gt;
+&lt;h1&gt;&lt;strong&gt;fliter_factory&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;filter_factory: 可调用对象，接受参数(global_config, **local_conf)，返回filter对象。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;auth_filter_factory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;global_conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;space&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;separated&lt;/span&gt; &lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;usernames&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;req_usernames&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;filter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;AuthFilter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;filter&lt;/span&gt;
+
+&lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="n"&gt;AuthFilter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;object&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;app&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;req_usernames&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;
+
+    &lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;start_response&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;REMOTE_USER&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;start_response&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;start_response&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+            &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="mi"&gt;403&lt;/span&gt; &lt;span class="n"&gt;Forbidden&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Content&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;html&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)])&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;You&lt;/span&gt; &lt;span class="n"&gt;are&lt;/span&gt; &lt;span class="n"&gt;forbidden&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;view&lt;/span&gt; &lt;span class="n"&gt;this&lt;/span&gt; &lt;span class="n"&gt;resource&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;定义了AuthFilter对象实现请求变量'REMOTE_USER'下的变量内容和req_usernames是否一致，filter(app)调用唯一对象app，再里面再做处理并返回信息，通过__call__把类像函数一样调用。&lt;/p&gt;
+&lt;h1&gt;&lt;strong&gt;fliter_app_factory&lt;/strong&gt;&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;class&lt;/span&gt; &lt;span class="n"&gt;AuthFilter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;object&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;global_conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;req_usernames&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="p"&gt;....&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;除了参数包括app，返回对象为WSGI application外，其他不变。&lt;/p&gt;
+&lt;h1&gt;&lt;strong&gt;server_factory&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;接受一个参数 wsgi_app，返回serve&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;server_factory&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;global_conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;serve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Server&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serve_forever&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;serve&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sanjeo</dc:creator><pubDate>Mon, 02 Mar 2015 22:50:00 +0800</pubDate><guid>tag:www.sanjeo.com,2015-03-02:pages/2015/03/02/openstack-paste-deploy-interpretation/</guid><category>paste.deploy</category></item><item><title>OpenStack Neutron DVR-架构概览</title><link>http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/</link><description></description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Sanjeo</dc:creator><pubDate>Fri, 05 Dec 2014 20:00:00 +0800</pubDate><guid>tag:www.sanjeo.com,2014-12-05:pages/2014/12/05/openstack-neutron-dvr/</guid><category>neutron</category></item><item><title>shell脚本的并发控制</title><link>http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/</link><description>&lt;h3&gt;&lt;strong&gt;shell脚本的并发&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;Default模式下，shell命令是阻塞执行的，可以通过其后添加&lt;code&gt;&amp;amp;&lt;/code&gt;让这条命令异步执行，如：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sleep&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;

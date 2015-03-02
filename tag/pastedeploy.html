@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 
-        <title>Sanjeo's Blog - glance</title>
+        <title>Sanjeo's Blog - paste.deploy</title>
 		
         <meta charset="utf-8" />
         <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
@@ -65,37 +65,32 @@
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/" rel="bookmark" title="Permalink to 利用已有的RBD images快速重建Glance镜像">利用已有的RBD images快速重建Glance镜像</a></h2> </header>
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy">OpenStack解析 - Paste Deploy</a></h2> </header>
 				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-08-21T17:50:00"> Thu 21 August 2014 </abbr>
+				                    <!--<abbr class="published" title="2015-03-02T22:30:00"> Mon 02 March 2015 </abbr>
 <address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
 								 <address class="vcard author" style="font-style:italic;">
-									Thu 21 August 2014
+									Mon 02 March 2015
 										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
 								  </address>
 									
 				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h3><strong>前言</strong></h3>
-<p>最近在调整和升级公司的OpenStack时遇到一些硬软件的问题，简单记录学习和解决的过程，以备后用。
-我们的OpenStack环境包括两个相对独立的setup，采用共同的Ceph集群(rbd)作为Glance以及Cinder的存储后端。</p>
-<h3><strong>问题</strong></h3>
-<p><strong>场景</strong>：在一个没有HA的OpenStack部署环境中，如果Glance节点(包括它的数据库)硬盘挂掉了，如何在重新部署完
-的glance中快速恢复镜像呢？</p>
-<p>最初我们的glance使用的是本地file system而不是rbd作为backend，所以在转移或者重建image时只能老老实实的重新上传到glance。现在既然使用了ceph，还那么干岂不是太土包子了？</p>
-<h3><strong>方法</strong></h3>
-<p>我们只需将glance的backend设置成已有的rbd pool,那么接下来要做的只是在glance中建立镜像的相关信息(注册镜像ID以及metadata等)，而不需要创建一个新的镜像，所以自然省时省力。</p>
-<p>1.首先，通过rbd的client查看一下对应image的信息：</p>
-<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="o">~</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">rbd</span> <span class="o">-</span><span class="n">p</span> <span class="n">bimage</span> <span class="n">info</span> <span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06</span><span class="o">-</span><span class="mi">4099</span><span class="o">-</span><span class="mi">85</span><span class="n">a1</span><span class="o">-</span><span class="n">c2a852269166</span>
-<span class="n">rbd</span> <span class="n">image</span> <span class="err">&#39;</span><span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06 ...</span></pre></div> </div><!-- /.entry-content -->
+				                <div class="entry-content"> <p>OpenStack中采用Paste Deployment来部署WSGI应用，这里进行一下简要分析。</p>
+<h3><strong>1. Python WSGI简介</strong></h3>
+<p>Python中的WSGI (Web Server Gateway Interface), 是Python应用程序（或者框架、套件）与服务器之间的一种接口，其定义了两者进行通信的接口规范。服务器端和应用端都必须遵循这套规范。当一个应用程序是按照WSGI规范开发的，那么它可以在任意遵循该规范的服务器上运行。那这是怎样一套接口呢？在wsgi规范里，一个web服务流程如下图所示：
+<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" />
+显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。
+应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
+中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。
+服务器端也不复杂，对于每个http请求，调用一次应用端 ...</p> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/" rel="bookmark" title="Permalink to 利用已有的RBD images快速重建Glance镜像">Read more <i class="icon-arrow-right"></i></a></div>
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy">Read more <i class="icon-arrow-right"></i></a></div>
 
 
 
 								<div class="row tag-row">
 										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/glance.html">glance</a>
-											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a>
 								</div>
 
 

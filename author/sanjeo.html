@@ -65,6 +65,63 @@
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy">OpenStack解析 - Paste Deploy</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2015-03-02T22:30:00"> Mon 02 March 2015 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Mon 02 March 2015
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>OpenStack中采用Paste Deployment来部署WSGI应用，这里进行一下简要分析。</p>
+<h3><strong>1. Python WSGI简介</strong></h3>
+<p>Python中的WSGI (Web Server Gateway Interface), 是Python应用程序（或者框架、套件）与服务器之间的一种接口，其定义了两者进行通信的接口规范。服务器端和应用端都必须遵循这套规范。当一个应用程序是按照WSGI规范开发的，那么它可以在任意遵循该规范的服务器上运行。那这是怎样一套接口呢？在wsgi规范里，一个web服务流程如下图所示：
+<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" />
+显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。
+应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
+中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。
+服务器端也不复杂，对于每个http请求，调用一次应用端 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">OpenStack Neutron DVR-架构概览</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2014-12-05T19:30:00"> Fri 05 December 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Fri 05 December 2014
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content">  </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/neutron.html">neutron</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/" rel="bookmark" title="Permalink to shell脚本的并发控制">shell脚本的并发控制</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2014-12-04T12:30:00"> Thu 04 December 2014 </abbr>
@@ -150,78 +207,6 @@ sleep 1
 
 
 				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">欲删rbd，必先umap</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-11-03T20:50:00"> Mon 03 November 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Mon 03 November 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <h3><strong>问题</strong></h3>
-<p>今天在使用<code>ceph</code>作为<code>nova</code>和<code>cinder</code>的backend的情况下，用<code>Rally</code>测试cinder的<code>create-and-attach-volume</code>时发现，测试结束后仍有两个instance(deleting状态)和volume(detaching状态)没有删除掉：</p>
-<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="n">tools</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">cinder</span> <span class="n">list</span> <span class="o">--</span><span class="n">all</span><span class="o">-</span><span class="n">tenants</span>
- <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
-<span class="o">|</span>                  <span class="n">ID</span>                  <span class="o">|</span>   <span class="n">Status</span>  <span class="o">|</span>       <span class="n">Display</span> <span class="n">Name</span>      <span class="o">|</span> <span class="n">Size</span> <span class="o">|</span> <span class="n">Volume</span> <span class="n">Type</span> <span class="o">|</span> <span class="n">Bootable</span> <span class="o">|</span>             <span class="n">Attached</span> <span class="n">to</span>              <span class="o">|</span>
- <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
-<span class="o">|</span> <span class="mi">7</span><span class="n">bbc350f</span><span class="o">-</span><span class="mf">404e-4986</span><span class="o">-</span><span class="mi">915</span><span class="n">b</span><span class="o">-</span><span class="n">db7b1cfda403</span> <span class="o">|</span> <span class="n">detaching</span> <span class="o">|</span> <span class="n">rally_volume_hbpqrdslsu</span> <span class="o">|</span>  <span class="mi">10</span>  <span class="o">|</span>     <span class="n">None</span>    <span class="o">|</span>  <span class="nb">false</span>   <span class="o">|</span> <span class="mi">8</span><span class="n">de63a0c</span><span class="o">-</span><span class="mi">580 ...</span></pre></div> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
-											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
-											<a class="danger label" href="http://www.sanjeo.com/tag/nova.html">nova</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">在Apache HTTPD中运行OpenStack keystone</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-09-24T22:20:00"> Wed 24 September 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Wed 24 September 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>之前看过一篇关于Openstack keystone的性能测试的<a href="http://prajnagarden.com/openstack/2014/05/06/keystone-tunning-01/">文章</a>，其中提到将Keystone运行在Apache容器下，性能可以提升将近四倍。于是，今天学习了下如何将已有的keystone配置到Apache HTTPD下运行，主要包括以下几个步骤：</p>
-<ol>
-<li>
-<p>关闭正在运行的keystone服务</p>
-<div class="highlight"><pre><span class="n">service</span> <span class="n">openstack</span><span class="o">-</span><span class="n">keystone</span> <span class="n">stop</span>
-<span class="n">chkconfig</span> <span class="n">openstack</span><span class="o">-</span><span class="n">keystone</span> <span class="n">off</span>
-</pre></div>
-
-
-</li>
-<li>
-<p>建立到keystone的wsgi进程的<code>cgi-bin</code>链接</p>
-<div class="highlight"><pre><span class="n">mkdir</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone</span>
-<span class="n">ln</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">keystone</span><span class="p">.</span><span class="n">wsgi</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">main</span>
-<span class="n">ln</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">keystone</span><span class="o">/</span><span class="n">keystone</span><span class="p">.</span><span class="n">wsgi</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">cgi</span><span class="o">-</span><span class="n">bin</span><span class="o">/</span><span class="n">keystone ...</span></pre></div></li></ol> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/keystone.html">keystone</a>
-								</div>
-
-
-
-				        </article></li>
 				</ol><!-- /#posts-list -->
 
         </div><!-- /.eleven.columns -->
@@ -248,11 +233,13 @@ sleep 1
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
 		</ul>
 </div>

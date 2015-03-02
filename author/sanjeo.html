@@ -78,11 +78,11 @@
 				                <div class="entry-content"> <p>OpenStack中采用Paste Deployment来部署WSGI应用，这里进行一下简要分析。</p>
 <h3><strong>1. Python WSGI简介</strong></h3>
 <p>Python中的WSGI (Web Server Gateway Interface), 是Python应用程序（或者框架、套件）与服务器之间的一种接口，其定义了两者进行通信的接口规范。服务器端和应用端都必须遵循这套规范。当一个应用程序是按照WSGI规范开发的，那么它可以在任意遵循该规范的服务器上运行。那这是怎样一套接口呢？在wsgi规范里，一个web服务流程如下图所示：
-<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" />
-显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。
-应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
-中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。
-服务器端也不复杂，对于每个http请求，调用一次应用端 ...</p> </div><!-- /.entry-content -->
+<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" /></p>
+<p>显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。</p>
+<p>应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
+中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。</p>
+<p>服务器端也不复杂，对于每个http请求，调用一次应用端 ...</p> </div><!-- /.entry-content -->
 
 								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy">Read more <i class="icon-arrow-right"></i></a></div>
 
@@ -233,14 +233,14 @@ sleep 1
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 		</ul>
 </div>
 

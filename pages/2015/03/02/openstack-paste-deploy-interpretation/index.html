@@ -88,11 +88,11 @@
               <p>OpenStack中采用Paste Deployment来部署WSGI应用，这里进行一下简要分析。</p>
 <h3><strong>1. Python WSGI简介</strong></h3>
 <p>Python中的WSGI (Web Server Gateway Interface), 是Python应用程序（或者框架、套件）与服务器之间的一种接口，其定义了两者进行通信的接口规范。服务器端和应用端都必须遵循这套规范。当一个应用程序是按照WSGI规范开发的，那么它可以在任意遵循该规范的服务器上运行。那这是怎样一套接口呢？在wsgi规范里，一个web服务流程如下图所示：
-<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" />
-显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。
-应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
-中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。
-服务器端也不复杂，对于每个http请求，调用一次应用端“注册”的那个协议规定应用端必须要实现的对象，然后返回相应的响应消息。所有的处理细节都在应用或者中间件中完成。这样一次应用端与服务器的通信就完成了，即完成了一次对用户请求的处理。</p>
+<img alt="WSGI Workflow" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/wsgi_workflow.jpg" /></p>
+<p>显而易见，wsgi把web组件分成三个部分：wsgi server (服务器端)，wsgi middleware (中间件)，wsgi application (应用端)。</p>
+<p>应用端只需要实现一个接受两个参数的，含有__call__方法并返回一个可遍历的含有零个或多个string结果的Python对象即可。当然传入参数的名字可以任意取，但习惯把第一个参数命名为“environ”，第二个为“start_response”。
+中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。</p>
+<p>服务器端也不复杂，对于每个http请求，调用一次应用端“注册”的那个协议规定应用端必须要实现的对象，然后返回相应的响应消息。所有的处理细节都在应用或者中间件中完成。这样一次应用端与服务器的通信就完成了，即完成了一次对用户请求的处理。</p>
 <h3><strong>2. Paste Deploy配置文件</strong></h3>
 <p>Paste Depoly是一个用于发现和配置WSGI application和server的系统。对于WSGI application, 用户通过提供一个单独的函数（loadapp），用于从配置文件或者python egg中加载WSGI application。因为WSGI application提供了唯一的单独的简单的访问入口，所以application无需暴露application的内部的实现细节。</p>
 <p>从一个paste deploy的配置文件(config.ini)来进行简单的分析:</p>
@@ -174,7 +174,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 <p>其中注释行，开头为<code>#</code>或者<code>；</code>。</p>
 <p>egg模式，通过setuptools打包python源文件，类似java jar的格式；下面详细介绍config文件模式：</p>
-<h2><strong>Applications</strong></h2>
+<h4><strong>Applications</strong></h4>
 <p>在单个文件中可以定义多个应用，但是如果只有一个应用，则必须把它放在一个section中。
 可以通过以下代码来部署应用：</p>
 <div class="highlight"><pre><span class="k">[app:myapp]</span>
@@ -205,7 +205,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 
 <p>paste.app_factory是一种协议格式，除了app_factory外还有composite_facory, fliter_factory, fliter_app_factory, server_factory, server_runner等。后面跟上myapp.modulename模块下的app_factroy类，不同协议其app_factory也不一样，后面会详细介绍如何定义每一个factories.</p>
-<h2><strong>Composite Applications</strong></h2>
+<h4><strong>Composite Applications</strong></h4>
 <p>复合应用，是那些行为像应用，但是由其他应用组成。如通过类似上文url的方式提供映射，到不同的应用。</p>
 <div class="highlight"><pre><span class="k">[composite:main]</span>
 <span class="na">use</span> <span class="o">=</span> <span class="s">egg:Paste#urlmap</span>
@@ -221,7 +221,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 </pre></div>
 
 
-<h2><strong>Filter Composition</strong></h2>
+<h4><strong>Filter Composition</strong></h4>
 <p>有三种方法进行filter，第一种是fliter-with,第二种是filter-app,第三种是pipeline,多说一句，openstack用的最多的是pipeline。</p>
 <p>第一种，通过fliter-with指向下一个fliter应用</p>
 <div class="highlight"><pre><span class="k">[app:main]</span>
@@ -256,8 +256,8 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 </pre></div>
 
 
-<h2><strong>Defining Factories</strong></h2>
-<h1><strong>app_factory</strong></h1>
+<h4><strong>Defining Factories</strong></h4>
+<h6><strong>app_factory</strong></h6>
 <p>app_factory为可调用对象，接受参数（global,**local_conf）,返回application对象。</p>
 <div class="highlight"><pre><span class="n">def</span> <span class="n">app_factory</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">local_conf</span><span class="p">)</span><span class="o">:</span>
     <span class="k">return</span> <span class="n">wsgi_app</span>
@@ -265,7 +265,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 
 <p>global_config传入的是字典参数，local_conf传入的是key-value参数。</p>
-<h1><strong>composite_factory</strong></h1>
+<h5><strong>composite_factory</strong></h5>
 <p>composite_factory为可调用对象，接受参数（loader,global_config,**local_conf）, loader有几个方法, get_app用于获取wsgi_app, get_filter用于加载filter, 返回application对象。</p>
 <div class="highlight"><pre><span class="n">def</span> <span class="n">composite_factory</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">local_conf</span><span class="p">)</span><span class="o">:</span>
     <span class="k">return</span> <span class="n">wsgi_app</span>
@@ -300,7 +300,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 
 <p>将数据读取传入，将filter printdebug,session读入并付给filter,读取app为pipeline参数的最后一个myapp,翻转filter先运行session(myapp)，再运行egg:Paste#printdebug(myapp)。</p>
-<h1><strong>fliter_factory</strong></h1>
+<h5><strong>fliter_factory</strong></h5>
 <p>filter_factory: 可调用对象，接受参数(global_config, **local_conf)，返回filter对象。</p>
 <div class="highlight"><pre><span class="n">def</span> <span class="n">auth_filter_factory</span><span class="p">(</span><span class="n">global_conf</span><span class="p">,</span> <span class="n">req_usernames</span><span class="p">)</span><span class="o">:</span>
     <span class="err">#</span> <span class="n">space</span><span class="o">-</span><span class="n">separated</span> <span class="n">list</span> <span class="n">of</span> <span class="n">usernames</span><span class="o">:</span>
@@ -324,7 +324,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 
 <p>定义了AuthFilter对象实现请求变量'REMOTE_USER'下的变量内容和req_usernames是否一致，filter(app)调用唯一对象app，再里面再做处理并返回信息，通过__call__把类像函数一样调用。</p>
-<h1><strong>fliter_app_factory</strong></h1>
+<h5><strong>fliter_app_factory</strong></h5>
 <div class="highlight"><pre><span class="n">class</span> <span class="n">AuthFilter</span><span class="p">(</span><span class="n">object</span><span class="p">)</span><span class="o">:</span>
     <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">global_conf</span><span class="p">,</span> <span class="n">req_usernames</span><span class="p">)</span><span class="o">:</span>
         <span class="p">....</span>
@@ -332,7 +332,7 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 
 
 <p>除了参数包括app，返回对象为WSGI application外，其他不变。</p>
-<h1><strong>server_factory</strong></h1>
+<h5><strong>server_factory</strong></h5>
 <p>接受一个参数 wsgi_app，返回serve</p>
 <div class="highlight"><pre><span class="n">def</span> <span class="n">server_factory</span><span class="p">(</span><span class="n">global_conf</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span><span class="o">:</span>
     <span class="n">port</span> <span class="o">=</span> <span class="kt">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
@@ -391,14 +391,14 @@ wsgi_app = loadapp('config:/path/to/config.ini')</p>
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 		</ul>
 </div>
 

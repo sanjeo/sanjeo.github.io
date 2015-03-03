@@ -65,6 +65,39 @@
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">欲删rbd，必先umap</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2014-11-03T20:50:00"> Mon 03 November 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Mon 03 November 2014
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <h3><strong>问题</strong></h3>
+<p>今天在使用<code>ceph</code>作为<code>nova</code>和<code>cinder</code>的backend的情况下，用<code>Rally</code>测试cinder的<code>create-and-attach-volume</code>时发现，测试结束后仍有两个instance(deleting状态)和volume(detaching状态)没有删除掉：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="n">tools</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">cinder</span> <span class="n">list</span> <span class="o">--</span><span class="n">all</span><span class="o">-</span><span class="n">tenants</span>
+ <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
+<span class="o">|</span>                  <span class="n">ID</span>                  <span class="o">|</span>   <span class="n">Status</span>  <span class="o">|</span>       <span class="n">Display</span> <span class="n">Name</span>      <span class="o">|</span> <span class="n">Size</span> <span class="o">|</span> <span class="n">Volume</span> <span class="n">Type</span> <span class="o">|</span> <span class="n">Bootable</span> <span class="o">|</span>             <span class="n">Attached</span> <span class="n">to</span>              <span class="o">|</span>
+ <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
+<span class="o">|</span> <span class="mi">7</span><span class="n">bbc350f</span><span class="o">-</span><span class="mf">404e-4986</span><span class="o">-</span><span class="mi">915</span><span class="n">b</span><span class="o">-</span><span class="n">db7b1cfda403</span> <span class="o">|</span> <span class="n">detaching</span> <span class="o">|</span> <span class="n">rally_volume_hbpqrdslsu</span> <span class="o">|</span>  <span class="mi">10</span>  <span class="o">|</span>     <span class="n">None</span>    <span class="o">|</span>  <span class="nb">false</span>   <span class="o">|</span> <span class="mi">8</span><span class="n">de63a0c</span><span class="o">-</span><span class="mi">580 ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/nova.html">nova</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">在Apache HTTPD中运行OpenStack keystone</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2014-09-24T22:20:00"> Wed 24 September 2014 </abbr>
@@ -166,14 +199,14 @@
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
 		</ul>
 </div>
 

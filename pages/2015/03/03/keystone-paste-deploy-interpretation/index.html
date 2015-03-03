@@ -1,0 +1,340 @@
+﻿﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+
+        <title>Keystone源码分析 - keystone-paste.ini文件</title>
+		
+        <meta charset="utf-8" />
+        <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
+
+
+        <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+        <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/gumby.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/style.css" />
+        <link rel="stylesheet" type="text/css" href="http://www.sanjeo.com/theme/pygment.css" />
+
+        <script src="http://www.sanjeo.com/theme/js/libs/modernizr-2.6.2.min.js"></script>
+
+
+
+
+
+
+</head>
+
+<body id="index" class="home">
+
+<!-- Fork me on github -->
+
+    <div class="container">
+
+        <div class="row">
+
+          <header id="banner" class="body">
+                  <h1><a href="http://www.sanjeo.com">Sanjeo's Blog <strong></strong></a></h1>
+          </header><!-- /#banner -->
+
+            <div id="navigation" class="navbar row">
+              <a href="#" gumby-trigger="#navigation &gt; ul" class="toggle"><i class="icon-menu"></i></a>
+             
+              <ul class="columns">
+                <li><a href="/">Home</a></li>
+					<!--<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
+					<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
+					<!--<li class="active"><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
+					<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
+				<li><a href="/functions/archives.html">Archives</a></li>
+				<li><a href="/functions/random.html">Random Article</a></li>
+				<!--
+					<li><a href="/functions/categories.html">Categories</a></li>
+					<li><a href="/functions/tags.html">Tags</a></li>
+					<li><a href="/functions/archives.html">Archives</a></li>
+				
+				-->
+              </ul>
+            </div>
+
+<section id="content" class="body">
+
+   <div class="row">
+        <div class="eleven columns">
+
+
+            <header>
+              <h2 class="entry-title">
+                <a href="http://www.sanjeo.com/pages/2015/03/03/keystone-paste-deploy-interpretation/" rel="bookmark"
+                   title="Permalink to Keystone源码分析 - keystone-paste.ini文件">Keystone源码分析 - keystone-paste.ini文件</a></h2>
+           
+            </header>
+            <footer class="post-info">
+              <!--
+			  <abbr class="published" title="2015-03-03T20:30:00">
+                Tue 03 March 2015
+              </abbr>
+              <address class="vcard author">
+                By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+              </address>
+			  -->
+			  <address class="vcard author" style="font-style:italic;margin-bottom:-10px;">
+				Tue 03 March 2015
+					&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+	
+			  </address>
+			  <hr />			  
+            </footer><!-- /.post-info -->
+            <div class="entry-content">
+              <p>基于上一篇博文中关于<code>Paste.deploy</code>基础知识，本文将开始学习和分析其在Keystone中的应用。</p>
+<p>Keystone作为OpenStack中的身份管理与授权模块，主要实现系统用户的身份认证、基于角色的授权管理、其他OpenStack服务的地址发现和安全策略管理等功能。Keystone作为开源云系统OpenStack中至关重要的组成部分，与OpenStack中几乎所有的其他服务（如Nova, Glance, Neutron等）都有着密切的联系。</p>
+<p>Keystone项目生态圈包括<code>keystone</code>, <code>python-keystoneclient</code>和<code>keystonemiddleware</code>, 其中keystone相当于WSGI的服务器端，监听python-keystoneclient以及keystonemiddleware发来的http请求并作出相应的响应。</p>
+<p>首先我们分析下<code>/etc/keystone/keystone-paste.ini</code>文件。以下内容是该文件的部分提取，用以说明其结构以及各部分的含义与作用。</p>
+<div class="highlight"><pre><span class="cp"># filters</span>
+<span class="p">[</span><span class="n">filter</span><span class="o">:</span><span class="n">token_auth</span><span class="p">]</span>
+<span class="n">paste</span><span class="p">.</span><span class="n">filter_factory</span> <span class="o">=</span> <span class="n">keystone</span><span class="p">.</span><span class="n">middleware</span><span class="o">:</span><span class="n">TokenAuthMiddleware</span><span class="p">.</span><span class="n">factory</span>
+
+<span class="p">[</span><span class="n">filter</span><span class="o">:</span><span class="n">admin_token_auth</span><span class="p">]</span>
+<span class="n">paste</span><span class="p">.</span><span class="n">filter_factory</span> <span class="o">=</span> <span class="n">keystone</span><span class="p">.</span><span class="n">middleware</span><span class="o">:</span><span class="n">AdminTokenAuthMiddleware</span><span class="p">.</span><span class="n">factory</span>
+<span class="p">...</span>
+
+<span class="cp">#applications</span>
+<span class="p">[</span><span class="n">app</span><span class="o">:</span><span class="n">service_v3</span><span class="p">]</span>
+<span class="n">paste</span><span class="p">.</span><span class="n">app_factory</span> <span class="o">=</span> <span class="n">keystone</span><span class="p">.</span><span class="n">service</span><span class="o">:</span><span class="n">v3_app_factory</span>
+<span class="p">...</span>
+
+<span class="cp"># pipelines</span>
+<span class="p">[</span><span class="n">pipeline</span><span class="o">:</span><span class="n">api_v3</span><span class="p">]</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">sizelimit</span> <span class="n">url_normalize</span> <span class="n">build_auth_context</span> <span class="n">token_auth</span>  <span class="n">admin_token_auth</span> <span class="n">xml_body_v3</span>  <span class="n">json_body</span> <span class="n">ec2_extension_v3</span> <span class="n">s3_extension</span> <span class="n">simple_cert_extension</span> <span class="n">revoke_extension</span> <span class="n">service_v3</span>
+<span class="p">...</span>
+
+<span class="cp">#composites</span>
+<span class="p">[</span><span class="n">composite</span><span class="o">:</span><span class="n">main</span><span class="p">]</span>
+<span class="n">use</span> <span class="o">=</span> <span class="n">egg</span><span class="o">:</span><span class="n">Paste</span><span class="err">#</span><span class="n">urlmap</span>
+<span class="o">/</span><span class="n">v2</span><span class="mf">.0</span> <span class="o">=</span> <span class="n">public_api</span>
+<span class="o">/</span><span class="n">v3</span> <span class="o">=</span> <span class="n">api_v3</span>
+<span class="o">/</span> <span class="o">=</span> <span class="n">public_version_api</span>
+
+<span class="p">[</span><span class="n">composite</span><span class="o">:</span><span class="n">admin</span><span class="p">]</span>
+<span class="n">use</span> <span class="o">=</span> <span class="n">egg</span><span class="o">:</span><span class="n">Paste</span><span class="err">#</span><span class="n">urlmap</span>
+<span class="o">/</span><span class="n">v2</span><span class="mf">.0</span> <span class="o">=</span> <span class="n">admin_api</span>
+<span class="o">/</span><span class="n">v3</span> <span class="o">=</span> <span class="n">api_v3</span>
+<span class="o">/</span> <span class="o">=</span> <span class="n">admin_version_api</span>
+</pre></div>
+
+
+<p>keystone-paste.ini文件其实就是一个paste-deploy配置文件，该文件由application, filter, pipeline, composite等<code>section</code>组成。<code>composite</code>首先进行最高层次的调度，它简单的根据url的类型将request分发到不同的<code>pipeline</code>进行下一步处理。每个<code>pipeline</code>由若干个<code>filter</code>和一个<code>application</code>组成。其中，<code>filter</code>按照其在<code>pipeline</code>中的先后顺序依次对待处理的http请求进行过滤，包括对参数进行格式化处理等操作。最后，这个请求进入到位于<code>pipeline</code>的尾部的<code>application</code>，每一个<code>pipeline</code>有且只有一个<code>application</code>。<code>application</code>将这个请求进一步调度到每个模块的路由层(routers)。路由层根据HTTP请求的方法和具体路径，将HTTP请求分发给对应的控制层（controllers, <code>controllers</code>集中实现了业务逻辑，并通过调用更低层次的驱动层完成底层的工作，如数据库的读写等等。以上流程就是<code>composite</code>, <code>pipeline</code>, <code>filter</code>, <code>application</code>和<code>keystone</code>实现间的逻辑关系。</p>
+<p><code>keystone-paste.ini</code>配置文件从high level定义了keystone中的<code>composite</code>会将什么类型的url分发给哪个<code>pipeline</code>, 每个<code>pipeline</code>由哪些<code>filter</code>和<code>app</code>组成，甚至具体到每一个<code>filter</code>和<code>app</code>是由Keystone的哪部分代码实现的，其实，每个<code>filter</code>都对应着一个特定的类，而每个<code>application</code>则对应着一个具体的方法。</p>
+<p>下面以一个REST模式的HTTP请求为例，来具体分析Keystone服务是如何处理并响应请求的：</p>
+<p>假设用户以HTTP POST方式请求http://localhost:5000/v3/auth/tokens 这个url进行身份认证时，paste-deploy系统根据配置文件<code>keystone-paste.ini</code>中的<code>[composite:main]</code>定义的url映射规则以及请求url的类型(/v3)，将请求分发给<code>api_v3</code>这个<code>pipeline</code>去处理。api_v3中的所有<code>filter</code>会依次对该请求进行处理，直到请求被传递给管道尽头的<code>application</code>。</p>
+<p>以token_auth和admin_token_auth这两个连续的<code>filter</code>为例分析它们是如何工作的，在该paste-deploy配置文件对应的<code>filter</code>section，可以找到这两个filter具体实现的位置。<code>token_auth</code>是由<code>keystone.middleware:TokenAuthMiddleware.factory</code>实现的，在<code>keystone/middleware/core.py</code>中找到<code>TokenAuthMiddleware</code>这个类:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">TokenAuthMiddleware</span><span class="p">(</span><span class="n">wsgi</span><span class="o">.</span><span class="n">Middleware</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AUTH_TOKEN_HEADER</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONTEXT_ENV</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">context</span><span class="p">[</span><span class="s">&#39;token_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
+        <span class="k">if</span> <span class="n">SUBJECT_TOKEN_HEADER</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s">&#39;subject_token_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SUBJECT_TOKEN_HEADER</span><span class="p">))</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">CONTEXT_ENV</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
+</pre></div>
+
+
+<p>该类是一个WSGI中间件，继承自wsgi.Middleware。处理请求的主题函数<code>process_request</code>提取了http请求头中的X-Auth-Token和X-Subject-Token两个字段的值，并填充到上下文context中，然后将修改后的上下文写回到请求携带的环境信息中，并传递给下一个filter，即中间件admin_token_auth。</p>
+<p><code>filter admin_token_auth</code>具体实现可以定位到：<code>keystone.middleware:AdminTokenAuthMiddleware.factory</code>，在<code>keystone/middleware/core.py</code>模块下找到相应的<code>AdminTokenAuthMiddleware</code>类:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">AdminTokenAuthMiddleware</span><span class="p">(</span><span class="n">wsgi</span><span class="o">.</span><span class="n">Middleware</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A trivial filter that checks for a pre-defined admin token.</span>
+
+<span class="sd">    Sets &#39;is_admin&#39; to true in the context, expected to be checked by</span>
+<span class="sd">    methods that are admin-only.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AUTH_TOKEN_HEADER</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CONTEXT_ENV</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">context</span><span class="p">[</span><span class="s">&#39;is_admin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">token</span> <span class="o">==</span> <span class="n">CONF</span><span class="o">.</span><span class="n">admin_token</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">CONTEXT_ENV</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
+</pre></div>
+
+
+<p>这个过滤器的功能就是从http请求header中的X-Auth-Token字段提取附带的token，并与keystone主配置文件（keystone.conf）中[DEFAULT]字段下的admin_token选项进行对比，并根据结果修改context字典的is_admin字段。</p>
+<p>最后分析下application是如何实现的。位于<code>pipeline</code> api_v3的末端的是服务器应用<code>service_v3</code>，根据keystone-paste.ini配置文件中给出的位置信息<code>paste.app_factory = keystone.service:v3_app_factory</code>找到该app的具体实现代码：<code>keystone/service.py</code>中的v3_app_factory函数：</p>
+<div class="highlight"><pre><span class="o">...</span>
+<span class="nd">@fail_gracefully</span>
+<span class="k">def</span> <span class="nf">v3_app_factory</span><span class="p">(</span><span class="n">global_conf</span><span class="p">,</span> <span class="o">**</span><span class="n">local_conf</span><span class="p">):</span>
+    <span class="n">controllers</span><span class="o">.</span><span class="n">register_version</span><span class="p">(</span><span class="s">&#39;v3&#39;</span><span class="p">)</span>
+    <span class="n">mapper</span> <span class="o">=</span> <span class="n">routes</span><span class="o">.</span><span class="n">Mapper</span><span class="p">()</span>
+    <span class="n">sub_routers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_routers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">router_modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">assignment</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">credential</span><span class="p">,</span> <span class="n">identity</span><span class="p">,</span> <span class="n">policy</span>
+                      <span class="n">resource</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">CONF</span><span class="o">.</span><span class="n">trust</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+        <span class="n">router_modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trust</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">router_modules</span><span class="p">:</span>
+        <span class="n">routers_instance</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">routers</span><span class="o">.</span><span class="n">Routers</span><span class="p">()</span>
+        <span class="n">_routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">routers_instance</span><span class="p">)</span>
+        <span class="n">routers_instance</span><span class="o">.</span><span class="n">append_v3_routers</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">sub_routers</span><span class="p">)</span>
+
+    <span class="c"># Add in the v3 version api</span>
+    <span class="n">sub_routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">routers</span><span class="o">.</span><span class="n">VersionV3</span><span class="p">(</span><span class="s">&#39;admin&#39;</span><span class="p">,</span> <span class="n">_routers</span><span class="p">))</span>
+    <span class="n">sub_routers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">routers</span><span class="o">.</span><span class="n">VersionV3</span><span class="p">(</span><span class="s">&#39;public&#39;</span><span class="p">,</span> <span class="n">_routers</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">wsgi</span><span class="o">.</span><span class="n">ComposingRouter</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">sub_routers</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+
+
+<p>该application将会进行第二层路由，其将具体的请求处理工作进一步分发到系统的各个模块上，比如代码中的assignment,auth, catalog等等，然后由具体的模块根据请求的具体路径和内容完成具体功能。</p>
+            </div><!-- /.entry-content -->
+			
+			
+			<ul style="float:right;">
+				<li>
+					◄&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/">
+						OpenStack基础知识 - Paste Deploy
+					</a>
+				</li>
+			</ul>
+			
+			
+            <div class="comments">
+              <h3>Comments</h3>
+              <div id="disqus_thread"></div>
+              <script type="text/javascript">
+                var disqus_identifier = "pages/2015/03/03/keystone-paste-deploy-interpretation/";
+                (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://sanjeo.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+              </script>
+            </div>
+
+
+        </div><!-- /.eleven.columns -->
+        
+<div class="three columns">
+
+<div class="sidebarbg">
+	<h4>Pages</h4>
+	<ul>
+		  <li><a href="/functions/categories.html">Categories</a></li>
+		  <li><a href="/functions/tags.html">Tags</a></li>
+		  <li><a href="/functions/archives.html">Archives</a></li>
+	</ul>
+</div>
+
+<div class="sidebarbg">
+<h4>Categories</h4>
+	<ul>
+			<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
+			<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
+	</ul>
+</div>
+
+<div class="sidebarbg">
+	<h4>Tags</h4>
+		<ul>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
+		</ul>
+</div>
+
+
+<div class="social sidebarbg">
+	<nav class="widget">
+	  <h4>Social</h4>
+	  <ul>
+		<li><a target="_blank" href="https://github.com/sanjeo">GitHub</a></li>
+		<li><a target="_blank" href="http://weibo.com/u/2079737417">Weibo</a></li>
+	  </ul>
+	</nav>
+</div>
+
+<nav class="widget sidebarbg">
+  <h4>Links</h4>
+  <ul>
+	<li><a target="_blank" href="http://getpelican.com/">Pelican</a></li>
+	<li><a target="_blank" href="http://python.org/">Python.org</a></li>
+	<li><a target="_blank" href="http://jinja.pocoo.org/">Jinja2</a></li>
+  </ul>
+</nav>
+
+</div> </div><!-- /.row -->
+
+
+</section>
+
+       </div><!-- /.row -->
+    </div><!-- /.container -->
+
+
+       <div class="container.nopad bg">
+
+    
+        <footer id="credits" class="row">
+          <div class="seven columns left-center">
+
+                   <address id="about" class="vcard body">
+                    Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+                    which takes great advantage of <a href="http://python.org">Python</a>.
+                    <br />
+                    Based on the <a target="_blank" href="http://gumbyframework.com">Gumby Framework</a>
+                    </address>
+          </div>
+
+
+          <div class="seven columns">
+            <div class="row">
+              <ul class="socbtns">
+
+
+
+
+
+              </ul>
+            </div>
+          </div>
+        </footer>
+
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'sanjeo';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+  <script src="http://www.sanjeo.com/theme/js/libs/jquery-1.9.1.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/libs/gumby.min.js"></script>
+  <script src="http://www.sanjeo.com/theme/js/plugins.js"></script>
+	<script>
+	(function() {
+		var $backToTopTxt = "返回顶部", $backToTopEle = $('<div class="backToTop"></div>').appendTo($("body"))
+			.text($backToTopTxt).attr("title", $backToTopTxt).click(function() {
+				$("html, body").animate({ scrollTop: 0 }, 120);
+		}), $backToTopFun = function() {
+			var st = $(document).scrollTop(), winh = $(window).height();
+			(st > 0)? $backToTopEle.show(): $backToTopEle.hide();
+			//IE6下的定位
+			if (!window.XMLHttpRequest) {
+				$backToTopEle.css("top", st + winh - 166);
+			}
+		};
+		$(window).bind("scroll", $backToTopFun);
+		$(function() { $backToTopFun(); });
+	})();
+	</script>
+</body>
+</html>

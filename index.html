@@ -65,7 +65,45 @@
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy (1)">OpenStack解析 - Paste Deploy (1)</a></h2> </header>
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/03/keystone-paste-deploy-interpretation/" rel="bookmark" title="Permalink to Keystone源码分析 - keystone-paste.ini文件">Keystone源码分析 - keystone-paste.ini文件</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2015-03-03T20:30:00"> Tue 03 March 2015 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Tue 03 March 2015
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>基于上一篇博文中关于<code>Paste.deploy</code>基础知识，本文将开始学习和分析其在Keystone中的应用。</p>
+<p>Keystone作为OpenStack中的身份管理与授权模块，主要实现系统用户的身份认证、基于角色的授权管理、其他OpenStack服务的地址发现和安全策略管理等功能。Keystone作为开源云系统OpenStack中至关重要的组成部分，与OpenStack中几乎所有的其他服务（如Nova, Glance, Neutron等）都有着密切的联系。</p>
+<p>Keystone项目生态圈包括<code>keystone</code>, <code>python-keystoneclient</code>和<code>keystonemiddleware</code>, 其中keystone相当于WSGI的服务器端，监听python-keystoneclient以及keystonemiddleware发来的http请求并作出相应的响应。</p>
+<p>首先我们分析下<code>/etc/keystone/keystone-paste.ini</code>文件。以下内容是该文件的部分提取，用以说明其结构以及各部分的含义与作用。</p>
+<div class="highlight"><pre><span class="cp"># filters</span>
+<span class="p">[</span><span class="n">filter</span><span class="o">:</span><span class="n">token_auth</span><span class="p">]</span>
+<span class="n">paste</span><span class="p">.</span><span class="n">filter_factory</span> <span class="o">=</span> <span class="n">keystone</span><span class="p">.</span><span class="n">middleware</span><span class="o">:</span><span class="n">TokenAuthMiddleware</span><span class="p">.</span><span class="n">factory</span>
+
+<span class="p">[</span><span class="n">filter</span><span class="o">:</span><span class="n">admin_token_auth</span><span class="p">]</span>
+<span class="n">paste</span><span class="p">.</span><span class="n">filter_factory</span> <span class="o">=</span> <span class="n">keystone</span><span class="p">.</span><span class="n">middleware</span><span class="o">:</span><span class="n">AdminTokenAuthMiddleware</span><span class="p">.</span><span class="n">factory</span>
+<span class="p">...</span>
+
+<span class="cp">#applications</span>
+<span class="p">[</span><span class="n">app</span><span class="o">:</span><span class="n">service_v3 ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/03/keystone-paste-deploy-interpretation/" rel="bookmark" title="Permalink to Keystone源码分析 - keystone-paste.ini文件">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/keystone.html">keystone</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack基础知识 - Paste Deploy">OpenStack基础知识 - Paste Deploy</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2015-03-02T22:30:00"> Mon 02 March 2015 </abbr>
 <address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
@@ -84,7 +122,7 @@
 中间件是一个两头都要兼顾的部件。在上面所示的服务栈中，一个中间件对于位于其顶部的中间件或者应用充当着服务器，而对于其下面的中间件或者服务器，它又扮演着应用端的角色。所以，中间件需要同时实现服务器端与应用端的规范。</p>
 <p>服务器端也不复杂，对于每个http请求 ...</p> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack解析 - Paste Deploy (1)">Read more <i class="icon-arrow-right"></i></a></div>
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/02/openstack-paste-deploy-interpretation/" rel="bookmark" title="Permalink to OpenStack基础知识 - Paste Deploy">Read more <i class="icon-arrow-right"></i></a></div>
 
 
 
@@ -167,46 +205,6 @@
 
 
 				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">如何清理OpenStack Cinder中的僵尸卷</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-12-03T19:30:00"> Wed 03 December 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Wed 03 December 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。</p>
-<p>在确保Cinder的backend没有问题的前提下，我的解决方法是：</p>
-<p>1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
-<div class="highlight"><pre><span class="c">#!/bin/bash</span>
-cinder list | grep error_deleting &gt; volumes.list
-
-cat volumes.list | awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> | <span class="k">while </span><span class="nb">read </span>line
-<span class="k">do</span>
-<span class="k"> </span>sh update_volumes.sh <span class="nv">$line</span>
-<span class="nb">echo</span> <span class="nv">$line</span>
-sleep 1
-<span class="k">done</span>
-</pre></div>
-
-
-<p>其中 ...</p> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
-								</div>
-
-
-
-				        </article></li>
 				</ol><!-- /#posts-list -->
 
         </div><!-- /.eleven.columns -->
@@ -233,14 +231,14 @@ sleep 1
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
 		</ul>
 </div>
 

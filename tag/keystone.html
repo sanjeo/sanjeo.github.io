@@ -103,6 +103,46 @@
 
 				        </article></li>
 				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/01/keystone-launch-service/" rel="bookmark" title="Permalink to Keystone源码分析 - keystone服务的启动">Keystone源码分析 - keystone服务的启动</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2015-03-01T10:30:00"> Sun 01 March 2015 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Sun 01 March 2015
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>本文主要学习keystone服务的启动以及初始化过程。</p>
+<p>首先从<code>keystone-all.py</code>入手分析，该文件是启动keystone服务的入口。</p>
+<div class="highlight"><pre><span class="c">#[bin/keystone-all.py]</span>
+<span class="n">possible_topdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span>
+                                   <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span>
+                                   <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">possible_topdir</span><span class="p">,</span>
+                              <span class="s">&#39;keystone&#39;</span><span class="p">,</span>
+                               <span class="s">&#39;__init__.py&#39;</span><span class="p">)):</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">possible_topdir</span><span class="p">)</span>
+</pre></div>
+
+
+<p>这段代码对keystone下各个模块的代码路径进行配置，使其位于系统路径下。然后调用eventlet模块的<code>run</code>函数来配置并启动运行keystone服务的server。</p>
+<div class="highlight"><pre><span class="c">#[bin/keystone-all.py]</span>
+<span class="kn">from</span> <span class="nn">keystone ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/01/keystone-launch-service/" rel="bookmark" title="Permalink to Keystone源码分析 - keystone服务的启动">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/keystone.html">keystone</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/09/24/configure-keystone-in-httpd/" rel="bookmark" title="Permalink to 在Apache HTTPD中运行OpenStack keystone">在Apache HTTPD中运行OpenStack keystone</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2014-09-24T22:20:00"> Wed 24 September 2014 </abbr>
@@ -167,14 +207,15 @@
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
 			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/manila.html">manila</a></li>
 		</ul>
 </div>
 

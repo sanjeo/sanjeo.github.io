@@ -592,7 +592,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;需要提到的是这里用到了一个带有&lt;code&gt;dependency&lt;/code&gt;对象的装饰器，那么它有什么作用呢？这个dependency是keystone中用来实现依赖注入的一个模块，作用如下：如果一个类加有&lt;code&gt;@dependency.provider('xxx')&lt;/code&gt;修饰时，这个类的成员将会把自己注册成为名为&lt;code&gt;xxx&lt;/code&gt;的依赖关系的provider。那这些provider如何被customer使用呢？只需要在对应的类之前加上&lt;code&gt;@dependency.requires('xxx')&lt;/code&gt;或者&lt;code&gt;@dependency.optional('xxx')&lt;/code&gt;这样的装饰器即可。加上装饰后，这些类的实例会有一个名为&lt;code&gt;xxx&lt;/code&gt;的属性，该属性的值便是对&lt;code&gt;xxx&lt;/code&gt;的引用。&lt;/p&gt;
+&lt;p&gt;需要提到的是这里用到了一个带有&lt;code&gt;dependency&lt;/code&gt;对象的装饰器，那么它有什么作用呢？这个dependency是keystone中用来实现依赖注入的一个模块，作用如下：如果一个类加有&lt;code&gt;@dependency.provider('xxx')&lt;/code&gt;修饰时，这个类的成员将会把自己注册成为名为&lt;code&gt;xxx&lt;/code&gt;的依赖关系的provider。那这些provider如何被customer使用呢？只需要在对应的类之前加上&lt;code&gt;@dependency.requires('xxx')&lt;/code&gt;或者&lt;code&gt;@dependency.optional('xxx')&lt;/code&gt;这样的装饰器即可。加上装饰后，这些类的实例会有一个名为&lt;code&gt;xxx&lt;/code&gt;的属性，该属性的值便是对&lt;code&gt;xxx&lt;/code&gt;的引用。如下例所示：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;        &lt;span class="nd"&gt;@dependency.provider&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;foo_api&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Foo&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
             &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -642,6 +642,8 @@
 
 
 &lt;p&gt;&lt;code&gt;CONF.identity.driver&lt;/code&gt;就是&lt;code&gt;keystone.conf&lt;/code&gt;文件里的&lt;code&gt;driver = keystone.identity.backends.sql.Identity&lt;/code&gt;。因此__init__初始化操作就是导入了这个sql的driver。然后每次调用manager的某个方法时，如果其没有这个方法（因为大部分具体的方法实现都在driver部分），那么就调用__getattr__从底层的driver取，同时自己也会对这个方法进行注册，省的每次都要重新去取，所以就通过setattr(self, name, _wrapper)自己也留了一个引用。此刻manager就有了driver中的某个方法了。&lt;/p&gt;
+&lt;p&gt;简单总结一下这个模式：&lt;code&gt;xxx_api=xxxx.Manager()&lt;/code&gt;。keystone提供了很多的功能，具体的就是assignment、catalog、credential、endpoint_filter、identity、policy、token、trust、token_provider等。当我们在实现某个功能的时候（比如实现catalog），如果想调用assignment的功能，只要在类前加上@dependency.requires(‘assignment_api’)就行了。catalog使用assignment_api提供的api，至于assignment_api底层是如何实现的则无需关心。Manager相当于一个抽象封装层，只提供功能接口，从而有利于拓展性以及支持多类型的backend，而具体实现则是config文件中指定的那些driver。&lt;/p&gt;
+&lt;h5&gt;5. 启动server&lt;/h5&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create_server&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;workers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;keystone_service&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loadapp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;config:&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;conf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;environment&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Server&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;port&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
@@ -657,6 +659,13 @@
 
 
 &lt;p&gt;其中&lt;code&gt;create_server&lt;/code&gt;函数完成deploy模块配置信息的读取，通过loadapp加载WSGI服务器配置选项，再通过environment启动带着这些配置选项的Server，并设置ssl协议和证书，保证服务器的安全传输。&lt;/p&gt;
+&lt;h5&gt;6. 解决依赖&lt;/h5&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;drivers&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dependency&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;resolve_future_dependencies&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;之前提到虽然通过dependency.require了一个API，但这个时候这个API还不存在。这里通过调用这个方法就是用来解决这个问题的。&lt;/p&gt;
+&lt;h5&gt;7. 开始监听&lt;/h5&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;serve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;max&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;workers&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;servers&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;launcher&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ProcessLauncher&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;

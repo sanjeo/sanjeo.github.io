@@ -317,7 +317,7 @@
 </pre></div>
 
 
-<p>需要提到的是这里用到了一个带有<code>dependency</code>对象的装饰器，那么它有什么作用呢？这个dependency是keystone中用来实现依赖注入的一个模块，作用如下：如果一个类加有<code>@dependency.provider('xxx')</code>修饰时，这个类的成员将会把自己注册成为名为<code>xxx</code>的依赖关系的provider。那这些provider如何被customer使用呢？只需要在对应的类之前加上<code>@dependency.requires('xxx')</code>或者<code>@dependency.optional('xxx')</code>这样的装饰器即可。加上装饰后，这些类的实例会有一个名为<code>xxx</code>的属性，该属性的值便是对<code>xxx</code>的引用。</p>
+<p>需要提到的是这里用到了一个带有<code>dependency</code>对象的装饰器，那么它有什么作用呢？这个dependency是keystone中用来实现依赖注入的一个模块，作用如下：如果一个类加有<code>@dependency.provider('xxx')</code>修饰时，这个类的成员将会把自己注册成为名为<code>xxx</code>的依赖关系的provider。那这些provider如何被customer使用呢？只需要在对应的类之前加上<code>@dependency.requires('xxx')</code>或者<code>@dependency.optional('xxx')</code>这样的装饰器即可。加上装饰后，这些类的实例会有一个名为<code>xxx</code>的属性，该属性的值便是对<code>xxx</code>的引用。如下例所示：</p>
 <div class="highlight"><pre>        <span class="nd">@dependency.provider</span><span class="p">(</span><span class="s">&#39;foo_api&#39;</span><span class="p">)</span>
         <span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -367,6 +367,8 @@
 
 
 <p><code>CONF.identity.driver</code>就是<code>keystone.conf</code>文件里的<code>driver = keystone.identity.backends.sql.Identity</code>。因此__init__初始化操作就是导入了这个sql的driver。然后每次调用manager的某个方法时，如果其没有这个方法（因为大部分具体的方法实现都在driver部分），那么就调用__getattr__从底层的driver取，同时自己也会对这个方法进行注册，省的每次都要重新去取，所以就通过setattr(self, name, _wrapper)自己也留了一个引用。此刻manager就有了driver中的某个方法了。</p>
+<p>简单总结一下这个模式：<code>xxx_api=xxxx.Manager()</code>。keystone提供了很多的功能，具体的就是assignment、catalog、credential、endpoint_filter、identity、policy、token、trust、token_provider等。当我们在实现某个功能的时候（比如实现catalog），如果想调用assignment的功能，只要在类前加上@dependency.requires(‘assignment_api’)就行了。catalog使用assignment_api提供的api，至于assignment_api底层是如何实现的则无需关心。Manager相当于一个抽象封装层，只提供功能接口，从而有利于拓展性以及支持多类型的backend，而具体实现则是config文件中指定的那些driver。</p>
+<h5>5. 启动server</h5>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">create_server</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">workers</span><span class="p">):</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">keystone_service</span><span class="o">.</span><span class="n">loadapp</span><span class="p">(</span><span class="s">&#39;config:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">conf</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
     <span class="n">server</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">Server</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
@@ -382,6 +384,13 @@
 
 
 <p>其中<code>create_server</code>函数完成deploy模块配置信息的读取，通过loadapp加载WSGI服务器配置选项，再通过environment启动带着这些配置选项的Server，并设置ssl协议和证书，保证服务器的安全传输。</p>
+<h5>6. 解决依赖</h5>
+<div class="highlight"><pre><span class="n">drivers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dependency</span><span class="o">.</span><span class="n">resolve_future_dependencies</span><span class="p">())</span>
+</pre></div>
+
+
+<p>之前提到虽然通过dependency.require了一个API，但这个时候这个API还不存在。这里通过调用这个方法就是用来解决这个问题的。</p>
+<h5>7. 开始监听</h5>
 <div class="highlight"><pre><span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="o">*</span><span class="n">servers</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">max</span><span class="p">([</span><span class="n">server</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">workers</span> <span class="k">for</span> <span class="n">server</span> <span class="ow">in</span> <span class="n">servers</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">launcher</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">ProcessLauncher</span><span class="p">()</span>
@@ -460,15 +469,15 @@
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/manila.html">manila</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
 			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/manila.html">manila</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
 		</ul>
 </div>
 

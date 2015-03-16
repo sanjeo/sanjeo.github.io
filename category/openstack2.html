@@ -65,71 +65,6 @@
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">OpenStack Neutron DVR-架构概览</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-12-05T19:30:00"> Fri 05 December 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Fri 05 December 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content">  </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/neutron.html">neutron</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">如何清理OpenStack Cinder中的僵尸卷</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-12-03T19:30:00"> Wed 03 December 2014 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Wed 03 December 2014
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content"> <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。</p>
-<p>在确保Cinder的backend没有问题的前提下，我的解决方法是：</p>
-<p>1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
-<div class="highlight"><pre><span class="c">#!/bin/bash</span>
-cinder list | grep error_deleting &gt; volumes.list
-
-cat volumes.list | awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> | <span class="k">while </span><span class="nb">read </span>line
-<span class="k">do</span>
-<span class="k"> </span>sh update_volumes.sh <span class="nv">$line</span>
-<span class="nb">echo</span> <span class="nv">$line</span>
-sleep 1
-<span class="k">done</span>
-</pre></div>
-
-
-<p>其中 ...</p> </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">欲删rbd，必先umap</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2014-11-03T20:50:00"> Mon 03 November 2014 </abbr>
@@ -201,6 +136,43 @@ sleep 1
 
 
 				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/" rel="bookmark" title="Permalink to 利用已有的RBD images快速重建Glance镜像">利用已有的RBD images快速重建Glance镜像</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2014-08-21T17:50:00"> Thu 21 August 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Thu 21 August 2014
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <h3><strong>前言</strong></h3>
+<p>最近在调整和升级公司的OpenStack时遇到一些硬软件的问题，简单记录学习和解决的过程，以备后用。
+我们的OpenStack环境包括两个相对独立的setup，采用共同的Ceph集群(rbd)作为Glance以及Cinder的存储后端。</p>
+<h3><strong>问题</strong></h3>
+<p><strong>场景</strong>：在一个没有HA的OpenStack部署环境中，如果Glance节点(包括它的数据库)硬盘挂掉了，如何在重新部署完
+的glance中快速恢复镜像呢？</p>
+<p>最初我们的glance使用的是本地file system而不是rbd作为backend，所以在转移或者重建image时只能老老实实的重新上传到glance。现在既然使用了ceph，还那么干岂不是太土包子了？</p>
+<h3><strong>方法</strong></h3>
+<p>我们只需将glance的backend设置成已有的rbd pool,那么接下来要做的只是在glance中建立镜像的相关信息(注册镜像ID以及metadata等)，而不需要创建一个新的镜像，所以自然省时省力。</p>
+<p>1.首先，通过rbd的client查看一下对应image的信息：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="o">~</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">rbd</span> <span class="o">-</span><span class="n">p</span> <span class="n">bimage</span> <span class="n">info</span> <span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06</span><span class="o">-</span><span class="mi">4099</span><span class="o">-</span><span class="mi">85</span><span class="n">a1</span><span class="o">-</span><span class="n">c2a852269166</span>
+<span class="n">rbd</span> <span class="n">image</span> <span class="err">&#39;</span><span class="mi">730</span><span class="n">d0191</span><span class="o">-</span><span class="mf">3e06 ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/08/21/use-existing-rbd-images-to-rebuild-images/" rel="bookmark" title="Permalink to 利用已有的RBD images快速重建Glance镜像">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/glance.html">glance</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
+								</div>
+
+
+
+				        </article></li>
 				</ol><!-- /#posts-list -->
 
         </div><!-- /.eleven.columns -->
@@ -227,15 +199,15 @@ sleep 1
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
-			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/manila.html">manila</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
 		</ul>
 </div>
 
@@ -263,8 +235,7 @@ sleep 1
 
 <p class="paginator">
             <a href="http://www.sanjeo.com/category/openstack.html"><i class="icon-arrow-left"></i></a>
-    Page 2 / 3
-        <a href="http://www.sanjeo.com/category/openstack3.html"><i class="icon-arrow-right"></i></a>
+    Page 2 / 2
 </p>
 </section><!-- /#content -->
 

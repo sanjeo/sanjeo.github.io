@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 
-        <title>Sanjeo's Blog - neutron</title>
+        <title>Sanjeo's Blog</title>
 		
         <meta charset="utf-8" />
         <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
@@ -41,7 +41,7 @@
              
               <ul class="columns">
                 <li><a href="/">Home</a></li>
-					<!--<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>-->
+					<!--<li class="active"><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>
 					<!--<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
@@ -63,29 +63,36 @@
    <div class="row">
 
         <div class="eleven columns">
-
+<h2>Articles in the Hadoop category</h2>
 		
 		         <ol id="post-list">
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">OpenStack Neutron DVR-架构概览</a></h2> </header>
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/06/25/mapreduce-InputSplit/" rel="bookmark" title="Permalink to Hadoop MapReduce - Input Split">Hadoop MapReduce - Input Split</a></h2> </header>
 				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2014-12-05T19:30:00"> Fri 05 December 2014 </abbr>
+				                    <!--<abbr class="published" title="2015-06-25T19:20:00"> Thu 25 June 2015 </abbr>
 <address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
 								 <address class="vcard author" style="font-style:italic;">
-									Fri 05 December 2014
+									Thu 25 June 2015
 										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
 								  </address>
 									
 				                </footer><!-- /.post-info -->
-				                <div class="entry-content">  </div><!-- /.entry-content -->
+				                <div class="entry-content"> <h4>InputSplit</h4>
+<p>向HDFS中存储一个大的文件时，HDFS会将其分割成多个block（默认大小是64M），然后将这些block的副本存在集群的不同节点上，HDFS并不知道也不关心这些文件的内容。</p>
+<p>当一个MapReduce任务被提交到YARN时，Resource Manager会启动一个后台进程（Application Master）来守护这个任务的生命周期。Application Master做的一件事情就是决定哪些文件的block将要被处理，然后它会向NameNode请求这些block副本的详细信息，最后利用这些block位置信息，Application Master会请求Resource Manager将处理这些block的mapper task调度到存储对应数据的节点上去执行，从而达到所谓的data locality（数据本地化）。</p>
+<p>在Hadoop中，每个文件是由许多独立的record组成，最终mapper task会逐一的处理这些record。假如有个很大的记录行形式的文本，每一行代表一个record，因为HDFS的存储文件的单位block大小为64M，所以这个文件会被分割成一个个大小为64M的块进行存储。那么问题来了，如果每个mapper task都在特定的block中处理所有的record，那么如果这些record存在跨block将怎么办？因为HDFS对每个block中内容没有任何概念，所以它无法计算出何时record应该跳到另一个block。</p>
+<p>为了解决这个问题，Hadoop在MapReduce这一层使用了一个逻辑概念-Input Split作为对文件进行处理和运输的输入单位，每个InputSplit并没有对文件实际的切割，只是记录了要处理的数据的位置（包括文件的path和hosts）和长度（由start和length决定），block和InputSplit的关系如下图所示：</p>
+<p><img alt="Block and InputSplit" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/relation_of_block_and_inputslipt.jpg" /></p>
+<h4>FileInputFormat:</h4>
+<p>FileInputFormat是所有以文件作为数据源的InputFormat实现的基类，FileInputFormat保存作为job输入的所有文件，并实现了对输入文件计算splits的方法 ...</p> </div><!-- /.entry-content -->
 
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">Read more <i class="icon-arrow-right"></i></a></div>
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/06/25/mapreduce-InputSplit/" rel="bookmark" title="Permalink to Hadoop MapReduce - Input Split">Read more <i class="icon-arrow-right"></i></a></div>
 
 
 
 								<div class="row tag-row">
 										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/neutron.html">neutron</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/mapreduce.html">MapReduce</a>
 								</div>
 
 

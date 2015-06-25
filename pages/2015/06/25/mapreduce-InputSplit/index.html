@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 
-        <title>OpenStack Neutron DVR-架构概览</title>
+        <title>Hadoop MapReduce - Input Split</title>
 		
         <meta charset="utf-8" />
         <link href="http://www.sanjeo.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Sanjeo's Blog Full Atom Feed" />
@@ -41,11 +41,11 @@
              
               <ul class="columns">
                 <li><a href="/">Home</a></li>
-					<!--<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>-->
+					<!--<li class="active"><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>
 					<!--<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
-					<!--<li class="active"><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
+					<!--<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
 				<li><a href="/functions/archives.html">Archives</a></li>
 				<li><a href="/functions/random.html">Random Article</a></li>
@@ -66,40 +66,67 @@
 
             <header>
               <h2 class="entry-title">
-                <a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark"
-                   title="Permalink to OpenStack Neutron DVR-架构概览">OpenStack Neutron DVR-架构概览</a></h2>
+                <a href="http://www.sanjeo.com/pages/2015/06/25/mapreduce-InputSplit/" rel="bookmark"
+                   title="Permalink to Hadoop MapReduce - Input Split">Hadoop MapReduce - Input Split</a></h2>
            
             </header>
             <footer class="post-info">
               <!--
-			  <abbr class="published" title="2014-12-05T19:30:00">
-                Fri 05 December 2014
+			  <abbr class="published" title="2015-06-25T19:20:00">
+                Thu 25 June 2015
               </abbr>
               <address class="vcard author">
                 By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
               </address>
 			  -->
 			  <address class="vcard author" style="font-style:italic;margin-bottom:-10px;">
-				Fri 05 December 2014
+				Thu 25 June 2015
 					&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
 	
 			  </address>
 			  <hr />			  
             </footer><!-- /.post-info -->
             <div class="entry-content">
-              
+              <h4>InputSplit</h4>
+<p>向HDFS中存储一个大的文件时，HDFS会将其分割成多个block（默认大小是64M），然后将这些block的副本存在集群的不同节点上，HDFS并不知道也不关心这些文件的内容。</p>
+<p>当一个MapReduce任务被提交到YARN时，Resource Manager会启动一个后台进程（Application Master）来守护这个任务的生命周期。Application Master做的一件事情就是决定哪些文件的block将要被处理，然后它会向NameNode请求这些block副本的详细信息，最后利用这些block位置信息，Application Master会请求Resource Manager将处理这些block的mapper task调度到存储对应数据的节点上去执行，从而达到所谓的data locality（数据本地化）。</p>
+<p>在Hadoop中，每个文件是由许多独立的record组成，最终mapper task会逐一的处理这些record。假如有个很大的记录行形式的文本，每一行代表一个record，因为HDFS的存储文件的单位block大小为64M，所以这个文件会被分割成一个个大小为64M的块进行存储。那么问题来了，如果每个mapper task都在特定的block中处理所有的record，那么如果这些record存在跨block将怎么办？因为HDFS对每个block中内容没有任何概念，所以它无法计算出何时record应该跳到另一个block。</p>
+<p>为了解决这个问题，Hadoop在MapReduce这一层使用了一个逻辑概念-Input Split作为对文件进行处理和运输的输入单位，每个InputSplit并没有对文件实际的切割，只是记录了要处理的数据的位置（包括文件的path和hosts）和长度（由start和length决定），block和InputSplit的关系如下图所示：</p>
+<p><img alt="Block and InputSplit" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/relation_of_block_and_inputslipt.jpg" /></p>
+<h4>FileInputFormat:</h4>
+<p>FileInputFormat是所有以文件作为数据源的InputFormat实现的基类，FileInputFormat保存作为job输入的所有文件，并实现了对输入文件计算splits的方法。至于获得记录的方法是由不同的子类进行实现的；</p>
+<div class="highlight"><pre>    <span class="mi">1</span><span class="p">)</span> <span class="n">FileInputFormat</span><span class="err">只划分比</span><span class="n">HDFS</span> <span class="n">block</span><span class="err">大的文件，所以</span><span class="n">FileInputFormat</span><span class="err">划分的结果是</span>
+       <span class="err">这个文件或者是这个文件中的一部分</span><span class="p">.</span>
+    <span class="mi">2</span><span class="p">)</span> <span class="err">如果一个文件的大小比</span><span class="n">block</span><span class="err">小，将不会被划分，这也是</span><span class="n">Hadoop</span><span class="err">处理大文件的效率要比</span>
+       <span class="err">处理很多小文件的效率高的原因。</span>
+    <span class="mi">3</span><span class="p">)</span> <span class="err">当</span><span class="n">Hadoop</span><span class="err">处理很多小文件（文件大小小于</span><span class="n">hdfs</span> <span class="n">block</span><span class="err">大小）的时候，由于</span><span class="n">FileInputFormat</span>
+      <span class="err">不会对小文件进行划分，所以每一个小文件都会被当做一个</span><span class="n">split</span><span class="err">并分配一个</span><span class="n">map</span><span class="err">任务，导致</span>
+      <span class="err">效率底下。</span>
+      <span class="err">例如：一个</span><span class="mi">1</span><span class="n">G</span><span class="err">的文件，会被划分成</span><span class="mi">16</span><span class="err">个</span><span class="mi">64</span><span class="n">MB</span><span class="err">的</span><span class="n">split</span><span class="err">，并分配</span><span class="mi">16</span><span class="err">个</span><span class="n">map</span><span class="err">任务处理，而</span><span class="mi">10000</span><span class="err">个</span>
+         <span class="mi">100</span><span class="n">kb</span><span class="err">的文件会被</span><span class="mi">10000</span><span class="err">个</span><span class="n">map</span><span class="err">任务处理。</span>
+</pre></div>
+
+
+<p>获得了输入文件后，FileInputFormat是怎样将他们划分成splits的呢？
+input file --&gt;split --&gt;map task
+计算SplitSize的函数很简单：</p>
+<div class="highlight"><pre>   <span class="n">splitSize</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">minsize</span><span class="p">,</span><span class="n">min</span><span class="p">(</span><span class="n">maxSize</span><span class="p">,</span><span class="n">blockSize</span><span class="p">))</span> <span class="o">=</span> <span class="mi">64</span><span class="n">M</span><span class="p">;</span>
+   <span class="n">maxSize</span> <span class="o">=</span> <span class="n">mapred</span><span class="p">.</span><span class="n">max</span><span class="p">.</span><span class="n">split</span><span class="p">.</span><span class="n">size</span> <span class="err">默认最大整数值</span>
+   <span class="n">minSize</span> <span class="o">=</span> <span class="n">mapred</span><span class="p">.</span><span class="n">min</span><span class="p">.</span><span class="n">split</span><span class="p">.</span><span class="n">size</span> <span class="err">默认</span><span class="mi">0</span>
+</pre></div>
+
+
+<p>那么我们如何处理同一行跨Split问题呢？
+首先map任务getSplit读入一个split，然后recordReader一行一行读取数据，如果有一行数据在
+两个split中，map读入第一个split后，会去读取留在另一个split中的半行；然而另一个map
+读入第二个split时，会自动跳过第一个换行符，这样就不存在重读读取的问题。</p>
             </div><!-- /.entry-content -->
 			
 			
 			<ul style="float:right;">
 				<li>
-					◄&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2014/12/04/shell-concurrency-control/">
-						shell脚本的并发控制
-					</a>
-				</li>
-				<li>
-					►&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2015/03/01/keystone-launch-service/">
-						Keystone源码分析 - keystone服务的启动
+					◄&nbsp;&nbsp;<a href="http://www.sanjeo.com/pages/2015/03/03/keystone-paste-deploy-interpretation/">
+						Keystone源码分析 - keystone-paste.ini文件
 					</a>
 				</li>
 			</ul>
@@ -109,7 +136,7 @@
               <h3>Comments</h3>
               <div id="disqus_thread"></div>
               <script type="text/javascript">
-                var disqus_identifier = "pages/2014/12/05/openstack-neutron-dvr/";
+                var disqus_identifier = "pages/2015/06/25/mapreduce-InputSplit/";
                 (function() {
                 var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                 dsq.src = 'http://sanjeo.disqus.com/embed.js';

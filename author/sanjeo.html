@@ -41,6 +41,8 @@
              
               <ul class="columns">
                 <li><a href="/">Home</a></li>
+					<!--<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>-->
+					<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>
 					<!--<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>-->
 					<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
 					<!--<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>-->
@@ -64,6 +66,38 @@
 <h2>Articles by Sanjeo</h2>
 		
 		         <ol id="post-list">
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/06/25/mapreduce-InputSplit/" rel="bookmark" title="Permalink to Hadoop MapReduce - Input Split">Hadoop MapReduce - Input Split</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2015-06-25T19:20:00"> Thu 25 June 2015 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Thu 25 June 2015
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <h4>InputSplit</h4>
+<p>向HDFS中存储一个大的文件时，HDFS会将其分割成多个block（默认大小是64M），然后将这些block的副本存在集群的不同节点上，HDFS并不知道也不关心这些文件的内容。</p>
+<p>当一个MapReduce任务被提交到YARN时，Resource Manager会启动一个后台进程（Application Master）来守护这个任务的生命周期。Application Master做的一件事情就是决定哪些文件的block将要被处理，然后它会向NameNode请求这些block副本的详细信息，最后利用这些block位置信息，Application Master会请求Resource Manager将处理这些block的mapper task调度到存储对应数据的节点上去执行，从而达到所谓的data locality（数据本地化）。</p>
+<p>在Hadoop中，每个文件是由许多独立的record组成，最终mapper task会逐一的处理这些record。假如有个很大的记录行形式的文本，每一行代表一个record，因为HDFS的存储文件的单位block大小为64M，所以这个文件会被分割成一个个大小为64M的块进行存储。那么问题来了，如果每个mapper task都在特定的block中处理所有的record，那么如果这些record存在跨block将怎么办？因为HDFS对每个block中内容没有任何概念，所以它无法计算出何时record应该跳到另一个block。</p>
+<p>为了解决这个问题，Hadoop在MapReduce这一层使用了一个逻辑概念-Input Split作为对文件进行处理和运输的输入单位，每个InputSplit并没有对文件实际的切割，只是记录了要处理的数据的位置（包括文件的path和hosts）和长度（由start和length决定），block和InputSplit的关系如下图所示：</p>
+<p><img alt="Block and InputSplit" src="https://github.com/sanjeo/sanjeo.github.io/raw/master/images/relation_of_block_and_inputslipt.jpg" /></p>
+<h4>FileInputFormat:</h4>
+<p>FileInputFormat是所有以文件作为数据源的InputFormat实现的基类，FileInputFormat保存作为job输入的所有文件，并实现了对输入文件计算splits的方法 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/06/25/mapreduce-InputSplit/" rel="bookmark" title="Permalink to Hadoop MapReduce - Input Split">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/mapreduce.html">MapReduce</a>
+								</div>
+
+
+
+				        </article></li>
 				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/03/keystone-paste-deploy-interpretation/" rel="bookmark" title="Permalink to Keystone源码分析 - keystone-paste.ini文件">Keystone源码分析 - keystone-paste.ini文件</a></h2> </header>
 				                <footer class="post-info">
@@ -175,31 +209,6 @@
 
 				        </article></li>
 				        <li><article class="hentry">
-				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2015/03/01/manila-overview/" rel="bookmark" title="Permalink to OpenStack Manila解析 - Manila概述">OpenStack Manila解析 - Manila概述</a></h2> </header>
-				                <footer class="post-info">
-				                    <!--<abbr class="published" title="2015-03-01T10:30:00"> Sun 01 March 2015 </abbr>
-<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
-								 <address class="vcard author" style="font-style:italic;">
-									Sun 01 March 2015
-										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
-								  </address>
-									
-				                </footer><!-- /.post-info -->
-				                <div class="entry-content">  </div><!-- /.entry-content -->
-
-								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2015/03/01/manila-overview/" rel="bookmark" title="Permalink to OpenStack Manila解析 - Manila概述">Read more <i class="icon-arrow-right"></i></a></div>
-
-
-
-								<div class="row tag-row">
-										<span>Tagged as : </span>
-											<a class="danger label" href="http://www.sanjeo.com/tag/manila.html">manila</a>
-								</div>
-
-
-
-				        </article></li>
-				        <li><article class="hentry">
 				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/05/openstack-neutron-dvr/" rel="bookmark" title="Permalink to OpenStack Neutron DVR-架构概览">OpenStack Neutron DVR-架构概览</a></h2> </header>
 				                <footer class="post-info">
 				                    <!--<abbr class="published" title="2014-12-05T19:30:00"> Fri 05 December 2014 </abbr>
@@ -270,6 +279,79 @@
 
 
 				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">如何清理OpenStack Cinder中的僵尸卷</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2014-12-03T19:30:00"> Wed 03 December 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Wed 03 December 2014
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <p>在Cinder中删除volume的时候，经常会碰到<code>cinder delete</code>操作执行后volume的状态为<code>error_deleting</code>。如果再尝试去删除这个volume的时候，Cinder会提示volume的状态必须为<code>available</code>或者<code>error</code>才可以删除。此时，该volume便成了僵尸卷。</p>
+<p>在确保Cinder的backend没有问题的前提下，我的解决方法是：</p>
+<p>1.在cinder的数据库中重置<code>error_deleting</code>状态的volume为<code>available</code>:</p>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+cinder list | grep error_deleting &gt; volumes.list
+
+cat volumes.list | awk -F <span class="s2">&quot;|&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> | <span class="k">while </span><span class="nb">read </span>line
+<span class="k">do</span>
+<span class="k"> </span>sh update_volumes.sh <span class="nv">$line</span>
+<span class="nb">echo</span> <span class="nv">$line</span>
+sleep 1
+<span class="k">done</span>
+</pre></div>
+
+
+<p>其中 ...</p> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/12/03/clean-cinder-zombie-volume/" rel="bookmark" title="Permalink to 如何清理OpenStack Cinder中的僵尸卷">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
+								</div>
+
+
+
+				        </article></li>
+				        <li><article class="hentry">
+				                <header> <h2 class="entry-title"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">欲删rbd，必先umap</a></h2> </header>
+				                <footer class="post-info">
+				                    <!--<abbr class="published" title="2014-11-03T20:50:00"> Mon 03 November 2014 </abbr>
+<address class="vcard author">By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a></address>-->
+								 <address class="vcard author" style="font-style:italic;">
+									Mon 03 November 2014
+										&nbsp;&nbsp;Write By <a class="url fn" href="http://www.sanjeo.com/author/sanjeo.html">Sanjeo</a>
+								  </address>
+									
+				                </footer><!-- /.post-info -->
+				                <div class="entry-content"> <h3><strong>问题</strong></h3>
+<p>今天在使用<code>ceph</code>作为<code>nova</code>和<code>cinder</code>的backend的情况下，用<code>Rally</code>测试cinder的<code>create-and-attach-volume</code>时发现，测试结束后仍有两个instance(deleting状态)和volume(detaching状态)没有删除掉：</p>
+<div class="highlight"><pre><span class="p">[</span><span class="n">root</span><span class="err">@</span><span class="n">bctrl</span> <span class="n">tools</span><span class="p">(</span><span class="n">keystone_admin</span><span class="p">)]</span><span class="err">#</span> <span class="n">cinder</span> <span class="n">list</span> <span class="o">--</span><span class="n">all</span><span class="o">-</span><span class="n">tenants</span>
+ <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
+<span class="o">|</span>                  <span class="n">ID</span>                  <span class="o">|</span>   <span class="n">Status</span>  <span class="o">|</span>       <span class="n">Display</span> <span class="n">Name</span>      <span class="o">|</span> <span class="n">Size</span> <span class="o">|</span> <span class="n">Volume</span> <span class="n">Type</span> <span class="o">|</span> <span class="n">Bootable</span> <span class="o">|</span>             <span class="n">Attached</span> <span class="n">to</span>              <span class="o">|</span>
+ <span class="o">+--------------------------------------+-----------+-------------------------+------+-------------+----------+--------------------------------------+</span>
+<span class="o">|</span> <span class="mi">7</span><span class="n">bbc350f</span><span class="o">-</span><span class="mf">404e-4986</span><span class="o">-</span><span class="mi">915</span><span class="n">b</span><span class="o">-</span><span class="n">db7b1cfda403</span> <span class="o">|</span> <span class="n">detaching</span> <span class="o">|</span> <span class="n">rally_volume_hbpqrdslsu</span> <span class="o">|</span>  <span class="mi">10</span>  <span class="o">|</span>     <span class="n">None</span>    <span class="o">|</span>  <span class="nb">false</span>   <span class="o">|</span> <span class="mi">8</span><span class="n">de63a0c</span><span class="o">-</span><span class="mi">580 ...</span></pre></div> </div><!-- /.entry-content -->
+
+								<div class="medium primary btn"><a href="http://www.sanjeo.com/pages/2014/11/03/umap-before-remove-rbd-img/" rel="bookmark" title="Permalink to 欲删rbd，必先umap">Read more <i class="icon-arrow-right"></i></a></div>
+
+
+
+								<div class="row tag-row">
+										<span>Tagged as : </span>
+											<a class="danger label" href="http://www.sanjeo.com/tag/ceph.html">ceph</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/cinder.html">cinder</a>
+											<a class="danger label" href="http://www.sanjeo.com/tag/nova.html">nova</a>
+								</div>
+
+
+
+				        </article></li>
 				</ol><!-- /#posts-list -->
 
         </div><!-- /.eleven.columns -->
@@ -288,6 +370,7 @@
 <div class="sidebarbg">
 <h4>Categories</h4>
 	<ul>
+			<li><a href="http://www.sanjeo.com/category/hadoop.html">Hadoop</a></li>
 			<li><a href="http://www.sanjeo.com/category/linux.html">Linux</a></li>
 			<li><a href="http://www.sanjeo.com/category/openstack.html">OpenStack</a></li>
 	</ul>
@@ -296,15 +379,15 @@
 <div class="sidebarbg">
 	<h4>Tags</h4>
 		<ul>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/manila.html">manila</a></li>
-			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
-			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
-			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/mapreduce.html">MapReduce</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/glance.html">glance</a></li>
-			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-1"><a href="http://www.sanjeo.com/tag/keystone.html">keystone</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/shell.html">shell</a></li>
 			<li class="tag-4"><a href="http://www.sanjeo.com/tag/neutron.html">neutron</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/cinder.html">cinder</a></li>
+			<li class="tag-2"><a href="http://www.sanjeo.com/tag/ceph.html">ceph</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/nova.html">nova</a></li>
+			<li class="tag-4"><a href="http://www.sanjeo.com/tag/pastedeploy.html">paste.deploy</a></li>
 		</ul>
 </div>
 
